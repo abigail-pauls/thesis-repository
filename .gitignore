@@ -1,0 +1,23 @@
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+
+# RStudio
+.Rproj.user/
+
+# renv
+renv/library/
+
+# Outputs
+output/
+plots/
+figures/
+
+# Data (optional)
+data/raw/
+
+.csv
+.bil
+.rds
+.RDS
