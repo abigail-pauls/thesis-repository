@@ -12,12 +12,15 @@ library(mgsub)
 library(purrr)
 library(tidyverse)
 library(data.table)
+library(readr)
+library(ggplot2)
 
 wosis <- read.csv("~/Fall 2025/THESIS/THESIS/WoSIS_Data/wosis_og.csv")
 grid_SMU <- read.csv("~/Fall 2025/THESIS/THESIS/grid_SMU.csv")
 smu_latlon <- read.csv("~/Fall 2025/THESIS/THESIS/smu_latlon.csv")
 HWSD2_LAYERS <- read_excel("~/Fall 2025/THESIS/THESIS/HWSD2_LAYERS.xlsx")
 lp.all<-read.csv("~/Fall 2025/THESIS/THESIS/wosis.lp.date.prof.csv")
+ghcl_stations <- read_table("~/Fall 2025/THESIS/ghcnd-stations.txt", col_names = FALSE)
 
 #BATCH UPLOAD WOSIS DATA
 #create a list containing the names of each csv file
@@ -750,6 +753,7 @@ wg1500<-rename(wg1500,wg1500_avg="value_avg")
 setDT(wg1500)
 wg1500.1 <- lp_smu_latlon.1[wg1500,on = .(xmin <= X, xmax >= X, ymin <= Y, ymax >= Y),nomatch = 0]
 
+#remove any duplicate data from the datasets 
 cfgr.2<-unique(cfgr.1)
 cfvo.2<-unique(cfvo.1)
 clay.2<-unique(clay.1)
@@ -777,24 +781,250 @@ for (j in merge) {
   wosis.lp<-merge(wosis.lp,x,all=TRUE)
 }
 
+#make country name a factor for a rough overview of data spread
 wosis.lp$country_name<-as.factor(wosis.lp$country_name)
 levels(wosis.lp$country_name)
 
+#count the amount of data per country 
 wosis.lp %>% count(country_name)
+
+#remove all data that is not dated
 wosis.lp.date<-subset(wosis.lp,wosis.lp$date!="????-??-??")
 
-library(ggplot2)
+#graph latitude v longitude of all data for idea of the spread of the data
 ggplot(lp.all,aes(x=longitude,y=latitude,color=country_name.x))+
   geom_point(show.legend = FALSE)
 
+#add profile data into the lp wosis dataframe
 wosis.lp.date.prof<-merge.data.frame(wosis.lp.date,profiles,by.x = c("xmin","ymin"),by.y = c("X","Y"),all.x = TRUE, all.y = FALSE)
 
+#remove unneccessary columns 
 wosis.lp.date.prof[,57:73]<-NULL
 wosis.lp.date.prof[,45:46]<-NULL
 wosis.lp.date.prof[,1:8]<-NULL
 wosis.lp.date.prof[,41:44]<-NULL
 
+#save dataframe as a csv
 write.csv(wosis.lp.date.prof,"wosis.lp.date.prof.csv",row.names = FALSE)
 
+#double check that all data in lp.all is actually within the leptosol units
 setDT(lp.all)
 test_1 <- lp_smu_latlon.1[lp.all,on = .(xmin <= X, xmax >= X, ymin <= Y, ymax >= Y),nomatch = 0]
+
+#clean-up ghcl_stations
+ghcl_stations<-rename(ghcl_stations,station_id="X1")
+ghcl_stations<-rename(ghcl_stations,latitude="X2")
+ghcl_stations<-rename(ghcl_stations,longitude="X3")
+ghcl_stations<-rename(ghcl_stations,elevation="X4")
+ghcl_stations[,5:9]<-NULL
+
+
+ghcl_stations$latitude<-as.character(ghcl_stations$latitude)
+ghcl_stations$longitude<-as.character(ghcl_stations$longitude)
+
+ghcl_stations <- ghcl_stations %>% dplyr::mutate(lat = NA)
+ghcl_stations <- ghcl_stations %>% dplyr::mutate(lon = NA)
+
+#limit latitude value to one decimal point, so can match with soil data within one tenth latitude/longitude
+for (i in 1:nrow(ghcl_stations)) {
+  latitude<-ghcl_stations$latitude[i]
+  longitude<-ghcl_stations$longitude[i]
+  if(latitude>=0){
+    ghcl_stations$lat[i]<-substr(ghcl_stations$latitude[i],1,4)}
+    else {ghcl_stations$lat[i]<-substr(ghcl_stations$latitude[i],1,5)
+  }
+}
+
+#limit longitude value to one decimal point, so can match with soil data within one tenth latitude/longitude
+for (i in 1:nrow(ghcl_stations)) {
+  longitude<-ghcl_stations$longitude[i]
+  long<-as.numeric(ghcl_stations$longitude[i])
+  if(long>=0 & long<100){
+    ghcl_stations$lon[i]<-substr(ghcl_stations$longitude[i],1,4)}
+  if(long>=100){
+    ghcl_stations$lon[i]<-substr(ghcl_stations$longitude[i],1,5)}
+  if(long<0 & long>-100){
+    ghcl_stations$lon[i]<-substr(ghcl_stations$longitude[i],1,5)}
+  if(long<=-100){
+    ghcl_stations$lon[i]<-substr(ghcl_stations$longitude[i],1,6)}
+}
+
+lp.all <- lp.all %>% dplyr::mutate(lat = NA)
+lp.all <- lp.all %>% dplyr::mutate(lon = NA)
+
+#limit latitude value to one decimal point, so can match with climate data within one tenth latitude/longitude
+for (i in 1:nrow(lp.all)) {
+  latitude<-lp.all$latitude[i]
+  longitude<-lp.all$longitude[i]
+  if(latitude>=0){
+    lp.all$lat[i]<-substr(lp.all$latitude[i],1,4)}
+  else {lp.all$lat[i]<-substr(lp.all$latitude[i],1,5)
+  }
+}
+
+#limit longitude value to one decimal point, so can match with climate data within one tenth latitude/longitude
+for (i in 1:nrow(lp.all)) {
+  longitude<-lp.all$longitude[i]
+  long<-as.numeric(lp.all$longitude[i])
+  if(long>=0 & long<100){
+    lp.all$lon[i]<-substr(lp.all$longitude[i],1,4)}
+  if(long>=100){
+    lp.all$lon[i]<-substr(lp.all$longitude[i],1,5)}
+  if(long<0 & long>-100){
+    lp.all$lon[i]<-substr(lp.all$longitude[i],1,5)}
+  if(long<=-100){
+    lp.all$lon[i]<-substr(lp.all$longitude[i],1,6)}
+}
+
+#merge climate data and soil data based on latitude and longitude limited values 
+lp.clim<-merge(lp.all,ghcl_stations,by=c("lat","lon"),all.x = TRUE,all.y=FALSE)
+
+#clean up lp.clim
+ghcl_stations<-rename(ghcl_stations,elevation="X4")
+lp.clim<-rename(lp.clim,profile_code="profile_code.x")
+lp.clim<-rename(lp.clim,country_name="country_name.x")
+lp.clim<-rename(lp.clim,continent="continent.x")
+lp.clim<-lp.clim %>% relocate(latitude.x,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(latitude.y,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(longitude.x,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(longitude.y,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(station_id,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(elevation,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(date,.before=lat)
+lp.clim<-lp.clim %>% relocate(year,.after = date)
+lp.clim<-lp.clim %>% relocate(month,.after=year)
+lp.clim<-lp.clim %>% relocate(day,.after=month)
+lp.clim<-rename(lp.clim,latitude_wosis="latitude.x")
+lp.clim<-rename(lp.clim,longitude_wosis="longitude.x")
+lp.clim<-rename(lp.clim,latitude_ghcn="latitude.y")
+lp.clim<-rename(lp.clim,longitude_ghcn="longitude.y")
+lp.clim<-lp.clim %>% relocate(continent,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(region.x,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(country_name,.before=layer_id)
+lp.clim<-lp.clim %>% relocate(dataset_id,.after = layer_id)
+lp.clim<-lp.clim %>% relocate(dataset_code,.after = dataset_id)
+
+#lots of experimenting to look at how well this worked to match climate data to soil data
+lp.clim$country_name<-as.factor(lp.clim$country_name)
+countries<-levels(lp.clim$country_name)
+countries<-as.vector(countries)
+countries<-list(levels(lp.clim$country_name))
+
+#dataset for each country in the data
+dat <- list()
+for(x in unique(countries)){
+  dat[[x]] <-subset(lp.clim,country_name == x)
+}
+
+#split the list into individual dataframes
+dat <- dat %>% set_names(countries)
+invisible(list2env(dat ,.GlobalEnv))
+ls()
+
+Brazil.1<-subset(Brazil,Brazil$latitude_ghcn!="NA")
+Brazil.2<-subset(Brazil,is.na(Brazil$latitude_ghcn))
+
+Brazil.2$min_lat_wosis<-Brazil.2$latitude_wosis-0.1
+Brazil.2$max_lat_wosis<-Brazil.2$latitude_wosis+0.1
+Brazil.2$min_lon_wosis<-Brazil.2$longitude_wosis-0.1
+Brazil.2$max_lon_wosis<-Brazil.2$longitude_wosis+0.1
+
+Brazil.2$min_lat_wosis<-as.numeric(Brazil.2$min_lat_wosis)
+Brazil.2$max_lat_wosis<-as.numeric(Brazil.2$max_lat_wosis)
+Brazil.2$min_lon_wosis<-as.numeric(Brazil.2$min_lon_wosis)
+Brazil.2$max_lon_wosis<-as.numeric(Brazil.2$max_lon_wosis)
+
+ghcl_stations$latitude<-as.numeric(ghcl_stations$latitude)
+ghcl_stations$longitude<-as.numeric(ghcl_stations$longitude)
+
+#trying to add ghcn station id into Brazil data using a range of lat/lon values
+setDT(Brazil.2)
+setDT(ghcl_stations)
+Brazil.3 <- Brazil.2[ghcl_stations,on = .(min_lat_wosis <= latitude, max_lat_wosis >= latitude,min_lon_wosis <= longitude, max_lon_wosis >= longitude),nomatch = 0]
+#this seems to do a better job matching more soil sites with climate sites, should do this with whole lp dataset
+
+#get ghcn data into Brazil.4
+Brazil.4<-merge(Brazil.3,ghcl_stations,by.x=c("i.station_id","i.elevation","i.lat","i.lon"),by.y=c("station_id","elevation","lat","lon"))
+
+#more clean-up of Brazil.4
+Brazil.4<-Brazil.4 %>% relocate(min_lat_wosis,.after = latitude_wosis)
+Brazil.4<-Brazil.4 %>% relocate(max_lat_wosis,.before = latitude_wosis)
+Brazil.4<-Brazil.4 %>% relocate(min_lon_wosis,.after = longitude_wosis)
+Brazil.4<-Brazil.4 %>% relocate(max_lon_wosis,.before = longitude_wosis)
+Brazil.4<-Brazil.4 %>% relocate(latitude,.after = latitude_wosis)
+Brazil.4<-Brazil.4 %>% relocate(longitude,.after = longitude_wosis)
+
+lp.all$min_lat<-lp.all$latitude-0.1
+lp.all$max_lat<-lp.all$latitude+0.1
+lp.all$min_lon<-lp.all$longitude-0.1
+lp.all$max_lon<-lp.all$longitude+0.1
+
+lp.all$min_lat<-as.numeric(lp.all$min_lat)
+lp.all$max_lat<-as.numeric(lp.all$max_lat)
+lp.all$min_lon<-as.numeric(lp.all$min_lon)
+lp.all$max_lon<-as.numeric(lp.all$max_lon)
+
+setDT(lp.all)
+setDT(ghcl_stations)
+lp.clim.1 <- lp.all[ghcl_stations,on = .(min_lat <= latitude, max_lat >= latitude,min_lon <= longitude, max_lon >= longitude),nomatch = 0]
+
+Brazil.4<-Brazil.4 %>% relocate(min_lat_wosis,.after = latitude_wosis)
+lp.clim.1<-lp.clim.1%>%relocate(date,.before = layer_id)
+lp.clim.1<-lp.clim.1%>%relocate(year,.after = date)
+lp.clim.1<-lp.clim.1%>%relocate(month,.after = year)
+lp.clim.1<-lp.clim.1%>%relocate(day,.after = month)
+lp.clim.1<-lp.clim.1%>%relocate(longitude,.before = layer_id)
+lp.clim.1<-lp.clim.1%>%relocate(latitude,.before = layer_id)
+lp.clim.1<-rename(lp.clim.1,longitude_wosis="longitude")
+lp.clim.1<-rename(lp.clim.1,latitude_wosis="latitude")
+lp.clim.1<-lp.clim.1%>%relocate(min_lon,.before = layer_id)
+lp.clim.1<-lp.clim.1%>%relocate(min_lat,.before = layer_id)
+lp.clim.1<-rename(lp.clim.1,latitude_ghcn="min_lat")
+lp.clim.1<-rename(lp.clim.1,longitude_ghcn="min_lon")
+lp.clim.1$max_lat<-NULL
+lp.clim.1$max_lon<-NULL
+lp.clim.1<-lp.clim.1%>%relocate(elevation,.before = layer_id)
+lp.clim.1<-lp.clim.1%>%relocate(station_id,.after = layer_id)
+lp.clim.1<-lp.clim.1%>%relocate(dataset_id,.after = layer_id)
+lp.clim.1<-lp.clim.1%>%relocate(dataset_code,.after = profile_code.x)
+lp.clim.1<-rename(lp.clim.1,wosis_profile_code="profile_code.x")
+lp.clim.1<-lp.clim.1%>%relocate(continent.x,.after = dataset_code)
+lp.clim.1<-rename(lp.clim.1,continent="continent.x")
+lp.clim.1<-lp.clim.1%>%relocate(region.x,.after = continent)
+lp.clim.1<-rename(lp.clim.1,region="region.x")
+lp.clim.1<-lp.clim.1%>%relocate(country_name.x,.after = region)
+lp.clim.1<-rename(lp.clim.1,country_name="country_name.x")
+
+lp.clim.1$sub_lat<-lp.clim.1$latitude_wosis-lp.clim.1$latitude_ghcn
+lp.clim.1$sub_lon<-lp.clim.1$longitude_wosis-lp.clim.1$longitude_ghcn
+
+range(lp.clim.1$sub_lat)
+range(lp.clim.1$sub_lon)
+
+test.6<-with(lp.clim.1,subset(lp.clim.1,select=c(latitude_wosis,longitude_wosis,latitude_ghcn,longitude_ghcn,station_id)))
+
+test.7<-unique(test.6)
+test.8<-test.7$station_id
+test.8<-unique(test.8)
+
+for (x in 1:nrow(lp.clim.1)) {
+  if()
+}
+
+
+
+
+stations<-unique(lp.clim.1$station_id)
+stations<-as.vector(stations)
+file <- unz("data/US Accidents.zip", "US_Accidents_Dec21_updated.csv")
+#dataset for each country in the data
+dat <- list()
+for(x in unique(stations)){
+  dat[[x]] <- unz("~/NOAA Climate Data.gz","x")
+}
+
+#split the list into individual dataframes
+dat <- dat %>% set_names(stations)
+invisible(list2env(dat ,.GlobalEnv))
+ls()
+
