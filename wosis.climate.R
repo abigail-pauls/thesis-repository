@@ -2,7 +2,7 @@ library(tidyverse)
 library(data.table)
 library(readr)
 
-lp.all<-readr::read_delim("wosis.lp.date.prof.csv")
+lp.all<-readr::read_delim("wosis.lp.date.prof.csv",show_col_types=FALSE)
 ghcl_stations <- read_fwf(
   "ghcl_stations.txt",
   fwf_widths(
@@ -65,21 +65,21 @@ for (i in 1:nrow(lp.all)) {
 #limit longitude value to one decimal point, so can match with climate data within one tenth latitude/longitude
 for (i in 1:nrow(lp.all)) {
   longitude<-lp.all$longitude[i]
-  long<-as.numeric(lp.all$longitude[i])
-  if(long>=0 & long<100){
+  lon<-as.numeric(lp.all$longitude[i])
+  if(lon>=0 & long<100){
     lp.all$lon[i]<-substr(lp.all$longitude[i],1,4)}
-  if(long>=100){
+  if(lon>=100){
     lp.all$lon[i]<-substr(lp.all$longitude[i],1,5)}
-  if(long<0 & long>-100){
+  if(lon<0 & long>-100){
     lp.all$lon[i]<-substr(lp.all$longitude[i],1,5)}
-  if(long<=-100){
+  if(lon<=-100){
     lp.all$lon[i]<-substr(lp.all$longitude[i],1,6)}
 }
 
-lp.all$min_lat<-as.numeric(lp.all$min_lat)
-lp.all$max_lat<-as.numeric(lp.all$max_lat)
-lp.all$min_lon<-as.numeric(lp.all$min_lon)
-lp.all$max_lon<-as.numeric(lp.all$max_lon)
+lp.all$latitude<-as.numeric(lp.all$latitude)
+lp.all$longitude<-as.numeric(lp.all$longitude)
+lp.all$lat<-as.numeric(lp.all$lat)
+lp.all$lon<-as.numeric(lp.all$lon)
 
 lp.all$min_lat<-lp.all$latitude-0.1
 lp.all$max_lat<-lp.all$latitude+0.1
