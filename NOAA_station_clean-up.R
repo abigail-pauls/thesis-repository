@@ -4,43 +4,23 @@ lp.clim<-read.csv("lp.clim.csv")
 
 stations<-as.vector(unique(lp.clim$station_id))
 
-#have to make a new empty dataset first
+clim.stations<-file.path(paste0(stations,".csv"))
 
-#for (i in 1:nrow(lp.all)) {
-#  latitude<-lp.all$latitude[i]
-#  longitude<-lp.all$longitude[i]
-#  if(latitude>=0){
-#    lp.all$lat[i]<-substr(lp.all$latitude[i],1,4)}
-#  else {lp.all$lat[i]<-substr(lp.all$latitude[i],1,5)
-#  }
-#}
+clim.stations.1<-(clim.stations[! clim.stations %in% c("NA.csv")])
 
-#import data from each csv into a list
-NOAA.clim.data <- list()
-for(x in unique(stations)){
-  NOAA.clim.data[[x]] <- read.csv(~/NOAA_climate_data_1/x.csv)
-}
+data_dir<-"/disks/home/abigail/thesis-repository/NOAA_climate_data_1"
 
-#split the list into individual dataframes
-NOAA.clim.data <- NOAA.clim.data %>% set_names(stations)
-invisible(list2env(NOAA.clim.data,.GlobalEnv))
-ls()
+climate_data<-list()
 
+for(i in unique(clim.stations.1)){
+x<-gsub("//.csv$","",i)
+climate_data[[x]]<-read.csv(file.path(data_dir,i))}
 
+#temp<-data.frame()
 
-stations.temp<-as.dataframe()
-
-for(i in 1:nrow(stations)){
-i<-read.csv("~/NOAA_climate_data/i.csv")
-if((is.na(i$temperature))/nrow(i$temperature)<=0.1){
-stations.temp[i]<-i}
-
-
-
-
-
-
-
+#for(i in seq_along(stations)){
+#if((is.na(i$temperature)/nrows(i$temperature))<=0.1){
+#temp[i]<-stations[i]}
 
 
 
