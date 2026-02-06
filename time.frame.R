@@ -34,29 +34,29 @@
 
 #precip.2.1<-map(precip.1.3,~.x%>%
 #mutate(
-	DATE = as.Date(DATE),
-	YEAR = lubridate::year(DATE),
-	MONTH = lubridate::month(DATE),
-	DAY = lubridate::day(DATE)))
+#	DATE = as.Date(DATE),
+#	YEAR = lubridate::year(DATE),
+#	MONTH = lubridate::month(DATE),
+#	DAY = lubridate::day(DATE)))
 
-precip.2.2<-map(precip.2.1,~.x%>%
-filter(YEAR>=1973,YEAR<=2023))
+#precip.2.2<-map(precip.2.1,~.x%>%
+#filter(YEAR>=1973,YEAR<=2023))
 
-precip.2.3<-lapply(precip.2.2,function(a)
-tidyr::complete(dplyr::mutate(a,DATE = as.Date(DATE)),DATE=seq(as.Date("1973-01-01"),as.Date("2023-12-31"),by="day")))
+#precip.2.3<-lapply(precip.2.2,function(a)
+#tidyr::complete(dplyr::mutate(a,DATE = as.Date(DATE)),DATE=seq(as.Date("1973-01-01"),as.Date("2023-12-31"),by="day")))
 
-precip.2.4<-precip.2.3[sapply(precip.2.3,function(b) "PRCP" %in% names(b))]
+#precip.2.4<-precip.2.3[sapply(precip.2.3,function(b) "PRCP" %in% names(b))]
 
-precip.2.5<- lapply(precip.2.4,function(c){
-	c$PRCP<-(as.numeric(c$PRCP)/10)*25.4
-	c
-})
+#precip.2.5<- lapply(precip.2.4,function(c){
+#	c$PRCP<-(as.numeric(c$PRCP)/10)*25.4
+#	c
+#})
 
-map <-lapply(precip.2.5, function(d){aggregate(PRCP ~ YEAR*STATION, d, sum, na.rm = TRUE)})
+#map <-lapply(precip.2.5, function(d){aggregate(PRCP ~ YEAR*STATION, d, sum, na.rm = TRUE)})
 
-map.1<-rbindlist(lapply(names(map),function(e){
-x<-map[[e]]
-data.table(station_id = basename(e),map = with(x,aggregate(PRCP~STATION,data=x,mean,na.rm=TRUE)))}))
+#map.1<-rbindlist(lapply(names(map),function(e){
+#x<-map[[e]]
+#data.table(station_id = basename(e),map = with(x,aggregate(PRCP~STATION,data=x,mean,na.rm=TRUE)))}))
 
 precip.3<-rbindlist(lapply(names(precip.2.5),function(j){
 	x<-precip.2.5[[j]]
@@ -65,20 +65,24 @@ precip.3<-rbindlist(lapply(names(precip.2.5),function(j){
 	mean.all = mean(x$PRCP, na.rm=TRUE),
 	sd.all = sd(x$PRCP,na.rm=TRUE),
 	mean.events = with(subset(x,PRCP!=0),mean(PRCP,na.rm=TRUE)),
-	sd.events = with(subset(x,PRCP!=0),sd(PRCP, na.rm=TRUE))
+	sd.events = with(subset(x,PRCP!=0),sd(PRCP, na.rm=TRUE)),
+	ex.high.all = quantile(x$PRCP,c(.95),na.rm=TRUE),
+	high.all = quantile(x$PRCP,c(.75),na.rm=TRUE),
+	ex.high.events = with(subset(x,PRCP!=0),quantile(PRCP,c(.95),na.rm=TRUE)),
+	high.events = with(subset(x,PRCP!=0),quantile(PRCP,c(.75),na.rm=TRUE))
 )}))
 
-#precip.3$one.above.all<-precip.3$mean.all+precip.3$sd.all
-#precip.3$two.above.all-precip.3$mean.all+2*(precip.3$sd.all)
-#precip.3$one.below.all<-precip.3$mean.all-precip.3$sd.all
-#precip.3$two.below.all<-precip.3$mean.all-2*(precip.3$sd.all)
+precip.3$one.above.all<-precip.3$mean.all+precip.3$sd.all
+precip.3$two.above.all-precip.3$mean.all+2*(precip.3$sd.all)
+precip.3$one.below.all<-precip.3$mean.all-precip.3$sd.all
+precip.3$two.below.all<-precip.3$mean.all-2*(precip.3$sd.all)
 
-#precip.3$events.one.above<-precip.3$mean.events+precip.3$sd.events
-#precip.3$events.two.above<-precip.3$mean.events+2*(precip.3$sd.events)
-#precip.3$events.one.below<-precip.3$mean.events-precip.3$sd.events
-#precip.3$events.two.below<-precip.3$mean.events-2*(precip.3$sd.events)
+precip.3$events.one.above<-precip.3$mean.events+precip.3$sd.events
+precip.3$events.two.above<-precip.3$mean.events+2*(precip.3$sd.events)
+precip.3$events.one.below<-precip.3$mean.events-precip.3$sd.events
+precip.3$events.two.below<-precip.3$mean.events-2*(precip.3$sd.events)
 
-#write.csv(precip.3,"/disks/home/abigail/thesis-repository/precipitation.csv")
+write.csv(precip.3,"/disks/home/abigail/thesis-repository/precipitation.csv")
 
 #Temperature Average
 #temp<-with(clim.5,subset(clim.5,data.miss.tavg<=0.1,select = c("station_id","n_rows","data.miss.tmax","data.miss.tmin","data.miss.tavg")))

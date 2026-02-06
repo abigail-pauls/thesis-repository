@@ -1,6 +1,6 @@
 library(lubridate)
-library(tidyverse)
-library(data.table)
+#library(tidyverse)
+#library(data.table)
 
 prcp<-read.csv("/disks/home/abigail/thesis-repository/precipitation.csv") 
 soil<-read.csv("/disks/home/abigail/thesis-repository/lp.clim.csv")
@@ -33,6 +33,7 @@ x$PRCP<-as.numeric(x$PRCP)
 	soil.prcp$avg.precip[i]<-with(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]),mean(PRCP,na.rm=TRUE))
         soil.prcp$mean.precip[i]<-with(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&x$PRCP!=0),mean(PRCP,na.rm=TRUE))
 	soil.prcp$events[i]<-nrow(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&x$PRCP!=0&x$PRCP!="NA"))
-	soil.prcp$ex.up.events[i]<-nrow(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&x$PRCP>=soil.prcp$events.two.above&x$PRCP!="NA"))
-	soil.prcp$ex.down.events[i]<-nrow(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&PRCP<=soil.prcp$events.two.below&x$PRCP!="NA"))
+	soil.prcp$dry.days[i]<-nrow(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&x$PRCP==0))
+	soil.prcp$high.events[i]<-nrow(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&x$PRCP>=soil.prcp$high.events&x$PRCP!="NA"))
+	soil.prcp$ex.high.events[i]<-nrow(subset(x,x$DATE<=soil.prcp$date[i]&x$DATE>=soil.prcp$start.date[i]&x$PRCP<=soil.prcp$ex.high.events&PRCP!="NA"))
 }
