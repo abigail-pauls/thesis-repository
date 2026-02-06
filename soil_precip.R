@@ -1,8 +1,8 @@
-#library(lubridate)
-#library(tidyverse)
-#library(data.table)
+library(lubridate)
+library(tidyverse)
+library(data.table)
 
-#prcp<-read.csv("/disks/home/abigail/thesis-repository/precipitation.csv") 
+prcp<-read.csv("/disks/home/abigail/thesis-repository/precipitation.csv") 
 soil<-read.csv("/disks/home/abigail/thesis-repository/lp.clim.csv")
 
 soil.prcp<-merge(soil,prcp,all.x=FALSE,all.y=TRUE)
