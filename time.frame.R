@@ -152,6 +152,7 @@ temp.max.2.3<-temp.max.2.3[sapply(temp.max.2.3,function(a) "TMAX" %in% names(a))
 
 temp.max.2.4<- lapply(temp.max.2.3,function(b){
 b$TMAX<-((as.numeric(b$TMAX)/10)-32)*5/9
+b$TMIN<-((as.numeric(b$TMIN)/10)-32)*5/9
 b
 })
 
@@ -159,18 +160,21 @@ temp.max.3<-rbindlist(lapply(names(temp.max.2.4),function(j){
        x<-temp.max.2.4[[j]]
        data.table(
        station_id = basename(j),
-       mean.all = mean(x$TMAX, na.rm=TRUE),
-       sd.all = sd(x$TMAX,na.rm=TRUE),
+       mean.t.max = mean(x$TMAX, na.rm=TRUE),
+       sd.t.max = sd(x$TMAX,na.rm=TRUE),
+	mean.t.min = mean(x$TMIN,na.rm=TRUE),
+	sd.t.min = sd(x$TMIN,na.rm=TRUE),
 	ex.high.max = quantile(x$TMAX,c(.95),na.rm=TRUE),
 	high.max = quantile(x$TMAX,c(.75),na.rm=TRUE),
 	low.max = quantile(x$TMAX,c(.25),na.rm=TRUE),
-	ex.low.max = quantile(x$TMAX,c(.05),na.rm=TRUE)
+	ex.low.max = quantile(x$TMAX,c(.05),na.rm=TRUE),
+        ex.high.min = quantile(x$TMIN,c(.95),na.rm=TRUE),
+        high.min = quantile(x$TMIN,c(.75),na.rm=TRUE),
+        low.min = quantile(x$TMIN,c(.25),na.rm=TRUE),
+        ex.low.min = quantile(x$TMIN,c(.05),na.rm=TRUE)
+
 )}))
 
-temp.max.3$one.above.all<-temp.max.3$mean.all+temp.max.3$sd.all
-temp.max.3$two.above.all-temp.max.3$mean.all+2*(temp.max.3$sd.all)
-temp.max.3$one.below.all<-temp.max.3$mean.all-temp.max.3$sd.all
-temp.max.3$two.below.all<-temp.max.3$mean.all-2*(temp.max.3$sd.all)
 
 
 

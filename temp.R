@@ -44,25 +44,33 @@
 #	filter(n_distinct(year) == length(years)) %>%
 #	ungroup()
 
-soil<-read.csv("/disks/home/abigail/thesis-repository/lp.clim.csv")
+#soil<-read.csv("/disks/home/abigail/thesis-repository/lp.clim.csv")
 
-soil.temp<-merge(soil,temp.max.3,all.x=FALSE,all.y=TRUE)
+#soil.temp<-merge(soil,temp.max.3,all.x=FALSE,all.y=TRUE)
 
-soil.temp$date<-as.Date(soil.temp$date)
+#soil.temp$date<-as.Date(soil.temp$date)
 
-soil.temp<-soil.temp %>% mutate(start.date = date %m-% years(1))
+#soil.temp<-soil.temp %>% mutate(start.date = date %m-% years(1))
 
 for(i in 1:nrow(soil.temp)){
 x<-fread(file.path("NOAA_climate_data_1",paste0(soil.temp$station_id[[i]],".csv")))
 x$DATE<-as.Date(x$DATE)
 x$TMAX<-as.numeric(x$TMAX)
+x$TMIN<-as.numeric(x$TMIN)
         time<-x$DATE<=soil.temp$date[i]&x$DATE>=soil.temp$start.date[i]
         soil.temp$avg.temp.max[i]<-with(subset(x,x$DATE<=soil.temp$date[i]&x$DATE>=soil.temp$start.date[i]),mean(TMAX,na.rm=TRUE))
 	soil.temp$ex.high.temp.max[i]<-nrow(subset(x,time&x$TMAX>=soil.temp$ex.high.max[i]))
 	soil.temp$high.temp.max[i]<-nrow(subset(x,time&x$TMAX>=soil.temp$high.max[i]))	
 	soil.temp$ex.low.temp.max[i]<-nrow(subset(x,time&x$TMAX<=soil.temp$ex.low.max[i]))
 	soil.temp$low.temp.max[i]<-nrow(subset(x,time&x$TMAX<=soil.temp$low.max[i]))
+        soil.temp$avg.temp.min[i]<-with(subset(x,x$DATE<=soil.temp$date[i]&x$DATE>=soil.temp$start.date[i]),mean(TMIN,na.rm=TRUE))
+        soil.temp$ex.high.temp.min[i]<-nrow(subset(x,time&x$TMIN>=soil.temp$ex.high.min[i]))
+        soil.temp$high.temp.min[i]<-nrow(subset(x,time&x$TIN>=soil.temp$high.min[i]))
+        soil.temp$ex.low.temp.min[i]<-nrow(subset(x,time&x$TMIN<=soil.temp$ex.low.min[i]))
+        soil.temp$low.temp.min[i]<-nrow(subset(x,time&x$TMIN<=soil.temp$low.min[i]))
+
 }
+
 
 #files<-file.path("NOAA_climate_data_1",clim.stations.1)
 
