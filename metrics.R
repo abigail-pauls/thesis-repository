@@ -178,69 +178,125 @@
 
 #soil.all<-soil.all %>% mutate(start.date = date %m-% years(1))
 
-soil.all$date<-as.Date(soil.all$date)
-soil.all$start.date<-as.Date(soil.all$start.date)
+#setDT(soil.all)
 
-stations<-as.vector(unique(soil.all$station_id))
+#soil.all$date<-as.IDate(soil.all$date)
 
-for(s in stations){
-   x<-fread(file.path("NOAA_climate_data_1/",s,".csv",fsep=""))
-   x$DATE<-as.Date(x$DATE)
-   x$PRCP<-((as.numeric(x$PRCP))/10)*25.4
-   x$TMAX<-(((as.numeric(x$TMAX))/10)-32)/1.8
-   x$TMIN<-(((as.numeric(x$TMIN))/10)-32)/1.8
-   rows<-which(soil.all$station_id==s)
-	for(i in rows){
-	start.date<-soil.all$start.date[i]
-	end.date<-soil.all$date[i]
-		time_x<-x[DATE<=end.date&DATE>=start.date]
-		prcp_t<-time_x$PRCP
-		tmax_t<-time_x$TMAX
-		tmin_t<-time_x$TMIN
-	        soil.all$prcp.avg[i]<-mean(prcp_t,na.rm=TRUE)
-	        soil.all$prcp.mean[i]<-mean(prcp_t!=0,na.rm=TRUE)
-	        soil.all$prcp.event[i]<-sum(prcp_t!=0,na.rm=TRUE)
-	        soil.all$dry.days[i]<-sum(prcp_t==0,na.rm=TRUE)
-	        soil.all$high.prcp.events[i]<-sum(prcp_t>=soil.all$high.prcp.events[i],na.rm=TRUE)
-	        soil.all$ex.high.prcp.events[i]<-sum(prcp_t<=soil.all$ex.high.prcp.events[i],na.rm=TRUE)	        
-		soil.all$tmax.avg[i]<-mean(tmax_t,na.rm=TRUE)
-	        soil.all$tmax.xhigh[i]<-sum(tmax_t>=soil.all$ex.high.max[i],na.rm=TRUE)	        
-		soil.all$tmax.high[i]<-sum(tmax_t>=soil.all$high.max[i],na.rm=TRUE)	        
-		soil.all$tmax.xlow[i]<-sum(tmax_t<=soil.all$ex.low.max[i],na.rm=TRUE)	        
-		soil.all$tmax.low[i]<-sum(tmax_t<=soil.all$low.max[i],na.rm=TRUE)		
-		soil.all$tmin.avg[i]<-mean(tmin_t,na.rm=TRUE)
-		soil.all$tmin.xhigh[i]<-sum(tmin_t>=soil.all$ex.high.min[i],na.rm=TRUE)
-	        soil.all$tmin.high[i]<-sum(tmin_t>=soil.all$high.min[i],na.rm=TRUE)
-	        soil.all$tmin.xlow[i]<-sum(tmin_t<=soil.all$ex.low.min[i],na.rm=TRUE)
-	        soil.all$tmin.low[i]<-sum(tmin_t<=soil.all$low.min[i],na.rm=TRUE)
-		r<-rle(prcp_t==0)
-		soil.all$avg.dry.days[i]<-mean(r$length[r$values])
-}}
+#soil.all$start.date<-as.IDate(soil.all$start.date)
+
+#stations<-unique(soil.all$station_id)
+
+#for(s in stations){
+#   x<-fread(file.path("NOAA_climate_data_1/",s,".csv",fsep=""))
+#   x$DATE<-as.IDate(x$DATE)
+#   x$PRCP<-as.numeric(x$PRCP)/10*25.4
+#   x$TMAX<-(as.numeric(x$TMAX)/10-32)/1.8
+#   x$TMIN<-(as.numeric(x$TMIN)/10-32)/1.8 
+#   rows<-which(soil.all$station_id==s)
+#	for(i in rows){
+#	   time<-x$DATE<=soil.all$date[i]&x$DATE>=soil.all$start.date[i]
+#	      prcp_t<-x$PRCP[time]
+#	      tmax_t<-x$TMAX[time]
+#	      tmin_t<-x$TMIN[time]
+#	        soil.all$prcp.avg[i]<-mean(prcp_t,na.rm=TRUE)
+#	        soil.all$prcp.mean[i]<-mean(prcp_t!=0,na.rm=TRUE)
+#	        soil.all$prcp.event[i]<-sum(prcp_t!=0,na.rm=TRUE)
+#	        soil.all$dry.days[i]<-sum(prcp_t==0,na.rm=TRUE)
+#	        soil.all$high.prcp.events[i]<-sum(prcp_t>=soil.all$high.prcp.events[i],na.rm=TRUE)
+#	        soil.all$ex.high.prcp.events[i]<-sum(prcp_t<=soil.all$ex.high.prcp.events[i],na.rm=TRUE)	        
+#		soil.all$tmax.avg[i]<-mean(tmax_t,na.rm=TRUE)
+#	        soil.all$tmax.xhigh[i]<-sum(tmax_t>=soil.all$ex.high.max[i],na.rm=TRUE)	        
+#		soil.all$tmax.high[i]<-sum(tmax_t>=soil.all$high.max[i],na.rm=TRUE)	        
+#		soil.all$tmax.xlow[i]<-sum(tmax_t<=soil.all$ex.low.max[i],na.rm=TRUE)	        
+#		soil.all$tmax.low[i]<-sum(tmax_t<=soil.all$low.max[i],na.rm=TRUE)		
+#		soil.all$tmin.avg[i]<-mean(tmin_t,na.rm=TRUE)
+#		soil.all$tmin.xhigh[i]<-sum(tmin_t>=soil.all$ex.high.min[i],na.rm=TRUE)
+#	        soil.all$tmin.high[i]<-sum(tmin_t>=soil.all$high.min[i],na.rm=TRUE)
+#	        soil.all$tmin.xlow[i]<-sum(tmin_t<=soil.all$ex.low.min[i],na.rm=TRUE)
+#	        soil.all$tmin.low[i]<-sum(tmin_t<=soil.all$low.min[i],na.rm=TRUE)
+#		a<-rle(prcp_t==0)
+#		soil.all$avg.dry.days[i]<-mean(a$length[a$values])
+#		b<-rle(tmax_t>=soil.all$ex.high.max[i])
+#		soil.all$avg.xhigh.max[i]<-mean(b$length[b$values])
+#		c<-rle(tmax_t>=soil.all$high.max[i])
+ #               soil.all$avg.high.max[i]<-mean(c$length[c$values])
+  #              d<-rle(tmin_t>=soil.all$ex.high.min[i])
+   #             soil.all$avg.xhigh.min[i]<-mean(d$length[d$values])
+#                e<-rle(tmin_t>=soil.all$high.min[i])
+#                soil.all$avg.high.min[i]<-mean(e$length[e$values])
+  #              f<-rle(tmax_t<=soil.all$ex.low.max[i])
+ #               soil.all$avg.xlow.max[i]<-mean(f$length[f$values])
+   #             g<-rle(tmax_t<=soil.all$low.max[i])
+    #            soil.all$avg.low.max[i]<-mean(g$length[g$values])
+     #           h<-rle(tmin_t<=soil.all$ex.low.min[i])
+      #          soil.all$avg.xlow.min[i]<-mean(h$length[h$values])
+       #         j<-rle(tmin_t<=soil.all$high.min[i])
+        #        soil.all$avg.low.min[i]<-mean(j$length[j$values])}}
+
+#for(s in stations){
+#   x<-fread(file.path("NOAA_climate_data_1/",s,".csv",fsep=""))
+#x[, DATE := as.IDate(DATE)]
+#if ("PRCP" %in% names(x)) {
+#  x[, PRCP := as.numeric(PRCP)]
+#  x[, PRCP := PRCP/10 * 25.4]}
+#else {
+#  x[, PRCP := NA_real_]}
+#if ("TMAX" %in% names(x)) {
+#  x[, TMAX := as.numeric(TMAX)]
+#  x[, TMAX := (TMAX/10 - 32)/1.8]}
+#else {
+#  x[, TMAX := NA_real_]}
+#if ("TMIN" %in% names(x)) {
+#  x[, TMIN := as.numeric(TMIN)]
+#  x[, TMIN := (TMIN/10 - 32)/1.8]}
+#else {
+#  x[, TMIN := NA_real_]}
+#   rows<-which(soil.all$station_id==s)
+#        for(i in rows){
+#            time<-x[DATE>=soil.all$start.date[i]&DATE<=soil.all$date[i]]
+#              prcp_t<-time$PRCP
+#              tmax_t<-time$TMAX
+#              tmin_t<-time$TMIN
+#                soil.all$prcp.avg[i]<-mean(prcp_t,na.rm=TRUE)
+#                soil.all$prcp.mean[i]<-mean(prcp_t!=0,na.rm=TRUE)
+#                soil.all$prcp.event[i]<-sum(prcp_t!=0,na.rm=TRUE)
+#                soil.all$dry.days[i]<-sum(prcp_t==0,na.rm=TRUE)
+#                soil.all$high.prcp.events[i]<-sum(prcp_t>=soil.all$high.prcp.events[i],na.rm=TRUE)
+#                soil.all$ex.high.prcp.events[i]<-sum(prcp_t<=soil.all$ex.high.prcp.events[i],na.rm=TRUE)
+#                soil.all$tmax.avg[i]<-mean(tmax_t,na.rm=TRUE)
+#                soil.all$tmax.xhigh[i]<-sum(tmax_t>=soil.all$ex.high.max[i],na.rm=TRUE)
+#                soil.all$tmax.high[i]<-sum(tmax_t>=soil.all$high.max[i],na.rm=TRUE)
+#                soil.all$tmax.xlow[i]<-sum(tmax_t<=soil.all$ex.low.max[i],na.rm=TRUE)
+#                soil.all$tmax.low[i]<-sum(tmax_t<=soil.all$low.max[i],na.rm=TRUE)
+#                soil.all$tmin.avg[i]<-mean(tmin_t,na.rm=TRUE)
+#                soil.all$tmin.xhigh[i]<-sum(tmin_t>=soil.all$ex.high.min[i],na.rm=TRUE)
+#                soil.all$tmin.high[i]<-sum(tmin_t>=soil.all$high.min[i],na.rm=TRUE)
+#                soil.all$tmin.xlow[i]<-sum(tmin_t<=soil.all$ex.low.min[i],na.rm=TRUE)
+#                soil.all$tmin.low[i]<-sum(tmin_t<=soil.all$low.min[i],na.rm=TRUE)
+#                r<-rle(prcp_t==0)
+#                soil.all$avg.dry.days[i]<-mean(r$length[r$values])
+#}}
 
 
 #write.csv(soil.all,"/disks/abigail/home/thesis-repository/soil.all.csv")
 
-#names(soil.all)[names(soil.all)=="latitude.x"]<-"wosis.lat"
-#names(soil.all)[names(soil.all)=="longitude.x"]<-"wosis.lon"
+names(soil.all)[names(soil.all)=="latitude.x"]<-"wosis.lat"
+names(soil.all)[names(soil.all)=="longitude.x"]<-"wosis.lon"
 
-#soil.all[,c("lat","lon","layer_id","profile_code.x","dataset_id","dataset_code","min_lat","max_lat","min_lon","max_lon")]<-NULL
+soil.all[,c("lat","lon","layer_id","profile_code.x","dataset_id","dataset_code","min_lat","max_lat","min_lon","max_lon")]<-NULL
 
-#names(soil.all)[names(soil.all)=="tceq_avg"]<-"tceq"
-#names(soil.all)[names(soil.all)=="orgm_avg"]<-"orgm"
-#names(soil.all)[names(soil.all)=="orgc_avg"]<-"orgc"
-#names(soil.all)[names(soil.all)=="nitkjd_avg"]<-"nitkjd"
-#names(soil.all)[names(soil.all)=="ecec_avg"]<-"ecec"
-#names(soil.all)[names(soil.all)=="cfgr_avg"]<-"cfgr"
-#names(soil.all)[names(soil.all)=="cfvo_avg"]<-"cfvo"
-#names(soil.all)[names(soil.all)=="clay_avg"]<-"clay"
-#names(soil.all)[names(soil.all)=="silt_avg"]<-"silt"
-#names(soil.all)[names(soil.all)=="sand_avg"]<-"sand"
-#names(soil.all)[names(soil.all)=="phaq_avg"]<-"phaq"
-#names(soil.all)[names(soil.all)=="phetol_avg"]<-"phetol"
-#names(soil.all)[names(soil.all)=="wg1500_avg"]<-"wg1500"
-#names(soil.all)[names(soil.all)=="longitude.y"]<-"noaa.lon"
-#names(soil.all)[names(soil.all)=="latitude.y"]<-"noaa.lat"
-
-
-
-
+names(soil.all)[names(soil.all)=="tceq_avg"]<-"tceq"
+names(soil.all)[names(soil.all)=="orgm_avg"]<-"orgm"
+names(soil.all)[names(soil.all)=="orgc_avg"]<-"orgc"
+names(soil.all)[names(soil.all)=="nitkjd_avg"]<-"nitkjd"
+names(soil.all)[names(soil.all)=="ecec_avg"]<-"ecec"
+names(soil.all)[names(soil.all)=="cfgr_avg"]<-"cfgr"
+names(soil.all)[names(soil.all)=="cfvo_avg"]<-"cfvo"
+names(soil.all)[names(soil.all)=="clay_avg"]<-"clay"
+names(soil.all)[names(soil.all)=="silt_avg"]<-"silt"
+names(soil.all)[names(soil.all)=="sand_avg"]<-"sand"
+names(soil.all)[names(soil.all)=="phaq_avg"]<-"phaq"
+names(soil.all)[names(soil.all)=="phetol_avg"]<-"phetol"
+names(soil.all)[names(soil.all)=="wg1500_avg"]<-"wg1500"
+names(soil.all)[names(soil.all)=="longitude.y"]<-"noaa.lon"
+names(soil.all)[names(soil.all)=="latitude.y"]<-"noaa.lat"
