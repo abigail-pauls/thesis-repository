@@ -67,272 +67,348 @@
 #	station_id = basename(e),
 #	map = with(x,aggregate(PRCP~STATION,data=x,mean,na.rm=TRUE)))}))
 
-prcp<-rbindlist(lapply(names(precip.2.5),function(j){
-	x<-precip.2.5[[j]]
-	x.0<-subset(x,x$PRCP!=0)
-	data.table(
-		station_id = x$STATION[j],
-		mean.prcp.all = mean(x$PRCP, na.rm=TRUE),
-		sd.prcp.all = sd(x$PRCP,na.rm=TRUE),
-		mean.prcp.events = mean(x.0$PRCP,na.rm=TRUE),
-		sd.prcp.events = sd(x.0$PRCP, na.rm=TRUE),
-		ex.high.prcp.all = quantile(x$PRCP,c(.95),na.rm=TRUE),
-		high.prcp.all = quantile(x$PRCP,c(.75),na.rm=TRUE),
-		ex.high.prcp.events = quantile(x.0$PRCP,c(.95),na.rm=TRUE),
-		high.prcp.events = quantile(x.0$PRCP,c(.75),na.rm=TRUE))}))
+#prcp<-rbindlist(lapply(names(precip.2.5),function(j){
+#	x<-precip.2.5[[j]]
+#	x.0<-subset(x,x$PRCP!=0)
+#	data.table(
+#		station_id = j,
+#		mean.prcp.all = mean(x$PRCP, na.rm=TRUE),
+#		sd.prcp.all = sd(x$PRCP,na.rm=TRUE),
+#		mean.prcp.events = mean(x.0$PRCP,na.rm=TRUE),
+#		sd.prcp.events = sd(x.0$PRCP, na.rm=TRUE),
+#		ex.high.prcp.all = quantile(x$PRCP,c(.95),na.rm=TRUE),
+#		high.prcp.all = quantile(x$PRCP,c(.75),na.rm=TRUE),
+#		ex.high.prcp.events = quantile(x.0$PRCP,c(.95),na.rm=TRUE),
+#		high.prcp.events = quantile(x.0$PRCP,c(.75),na.rm=TRUE))}))
 
-norm.prcp<-rbindlist(lapply(names(precip.2.5),function(a){
-	z<-precip.2.5[[a]]
-	one<-subset(z,z$PRCP==0)
-	two<-subset(z,z$PRCP!=0)
-	b<-rle(one$PRCP)
-	c<-aggregate(PRCP~YEAR,two,FUN=sum,na.rm=TRUE)
-	d<-aggregate(PRCP~YEAR,one,FUN=sum,na.rm=TRUE)
-	g<-subset(z,z$PRCP>=prcp$high.prcp.events[a])
-	if(nrow(g)>0){
-	e<-aggregate(PRCP~YEAR,g,FUN=sum,na.rm=TRUE)}
-	h<-subset(z,z$PRCP<=prcp$ex.high.prcp.events[a])
-	if(nrow(h)>0){
-	f<-aggregate(PRCP~YEAR,h,FUN=sum,na.rm=TRUE)}
-data.table(
-	station_id = z$STATION[a],
-	prcp.avg = mean(z$PRCP,na.rm=TRUE),
-	prcp.avg.sd = sd(z$PRCP,na.rm=TRUE),
-	prcp.mean = mean(two$PRCP,na.rm=TRUE),
-	prcp.mean.sd = sd(two$PRCP,na.rm=TRUE),
-	prcp.event.u = mean(c$PRCP,na.rm=TRUE),
-	prcp.event.sd = sd(c$PRCP,na.rm=TRUE),
-	dry.days.u = mean(d$PRCP,na.rm=TRUE),
-	dry.days.sd = sd(d$PRCP,na.rm=TRUE),
-	prcp.high.u = mean(e$PRCP,sum,na.rm=TRUE),
-	prcp.high.sd = sd(e$PRCP,na.rm=TRUE),
-	prcp.xhigh.u = mean(f$PRCP,na.rm=TRUE),
-	prcp.xhigh.sd = sd(f$PRCP,na.rm=TRUE),
-	dry.length.u = mean(b$length[b$values]),
-	dry.length.sd = sd(b$length[b$values]))}))
+#norm.prcp<-rbindlist(lapply(names(precip.2.5),function(a){
+#	z<-precip.2.5[[a]]
+#	one<-subset(z,z$PRCP==0)
+#	two<-subset(z,z$PRCP!=0)
+#	b<-rle(one$PRCP)
+#	c<-aggregate(PRCP~YEAR,two,FUN=sum,na.rm=TRUE)
+#	d<-aggregate(PRCP~YEAR,one,FUN=sum,na.rm=TRUE)
+#data.table(
+#	station_id = a,
+#	prcp.avg = mean(z$PRCP,na.rm=TRUE),
+#	prcp.avg.sd = sd(z$PRCP,na.rm=TRUE),
+#	prcp.mean = mean(two$PRCP,na.rm=TRUE),
+#	prcp.mean.sd = sd(two$PRCP,na.rm=TRUE),
+#	prcp.event.u = mean(c$PRCP,na.rm=TRUE),
+#	prcp.event.sd = sd(c$PRCP,na.rm=TRUE),
+#	dry.days.u = mean(d$PRCP,na.rm=TRUE),
+#	dry.days.sd = sd(d$PRCP,na.rm=TRUE),
+#	dry.length.u = mean(b$length[b$values]),
+#	dry.length.sd = sd(b$length[b$values]))}))
+
+#for(i in names(precip.2.5)){
+#	z<-precip.2.5[[i]]
+ #       g<-subset(z,z$PRCP>=prcp$high.prcp.events[i])
+  #      if(nrow(g)>0){
+   #     p<-aggregate(PRCP~YEAR,g,FUN=sum,na.rm=TRUE)
+#	norm.prcp$prcp.high.u[i]<-mean(p$PRCP,na.rm=TRUE)
+#	norm.prcp$prcp.high.sd[i]<-sd(p$PRCP,na.rm=TRUE)}
+ #       h<-subset(z,z$PRCP<=prcp$ex.high.prcp.events[i])
+  #      if(nrow(h)>0){
+   #     f<-aggregate(PRCP~YEAR,h,FUN=sum,na.rm=TRUE)
+#	norm.prcp$prcp.xhigh.u[i]<-mean(p$PRCP,na.rm=TRUE)
+#	norm.prcp$prcp.xhigh.sd[i]<-sd(p$PRCP,na.rm=TRUE)}}
 
 
-temp.max.0<-with(clim.5,subset(clim.5,data.miss.tmax<=0.1,select=c("station_id","n_rows","data.miss.tmax")))
+#temp.max.0<-with(clim.5,subset(clim.5,data.miss.tmax<=0.1,select=c("station_id","n_rows","data.miss.tmax")))
 
-temp.max.1.1<-as.vector(temp.max.0$station_id)
+#temp.max.1.1<-as.vector(temp.max.0$station_id)
 
-temp.max.1.2<-file.path(paste0(temp.max.1.1,".csv"))
+#temp.max.1.2<-file.path(paste0(temp.max.1.1,".csv"))
 
-temp.max.1.3<-file.path("data/ghcn-daily",temp.max.1.2)
+#temp.max.1.3<-file.path("data/ghcn-daily",temp.max.1.2)
 
-temp.max.1.4<-setNames(lapply(temp.max.1.3,fread),tools::file_path_sans_ext(basename(temp.max.1.3)))
+#temp.max.1.4<-setNames(lapply(temp.max.1.3,fread),tools::file_path_sans_ext(basename(temp.max.1.3)))
 
-temp.max.2.1<-map(temp.max.1.4,~.x%>%
-	mutate(DATE = as.Date(DATE),
-	YEAR = lubridate::year(DATE),
-	MONTH = lubridate::month(DATE),
-	DAY = lubridate::day(DATE)))
+#temp.max.2.1<-map(temp.max.1.4,~.x%>%
+#	mutate(DATE = as.Date(DATE),
+#	YEAR = lubridate::year(DATE),
+#	MONTH = lubridate::month(DATE),
+#	DAY = lubridate::day(DATE)))
 
-temp.max.2.2<-map(temp.max.2.1, ~.x %>% 
-	filter(YEAR >= 1973, YEAR <= 2023))
+#temp.max.2.2<-map(temp.max.2.1, ~.x %>% 
+#	filter(YEAR >= 1973, YEAR <= 2023))
 #101
-temp.max.2.3 <- lapply(temp.max.2.2, function(dt)
-	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
+#temp.max.2.3 <- lapply(temp.max.2.2, function(dt)
+#	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
 
-temp.max.2.3<-temp.max.2.3[sapply(temp.max.2.3,function(a) "TMAX" %in% names(a))]
+#temp.max.2.3<-temp.max.2.3[sapply(temp.max.2.3,function(a) "TMAX" %in% names(a))]
 
-temp.max.2.4<- lapply(temp.max.2.3,function(b){
-	b$TMAX<-as.numeric(b$TMAX)
-	b$TMAX<-b$TMAX/10
-	b$TMAX<-b$TMAX-32
-	b$TMAX<-b$TMAX/1.8
-	b})
+#temp.max.2.4<- lapply(temp.max.2.3,function(b){
+#	b$TMAX<-as.numeric(b$TMAX)
+#	b$TMAX<-b$TMAX/10
+#	b$TMAX<-b$TMAX-32
+#	b$TMAX<-b$TMAX/1.8
+#	b})
 
-avg.tmax<-rbindlist(lapply(names(temp.max.2.4),function(e){
-        x<-temp.max.2.4[[e]]
-        data.table(
-	station_id = basename(e),
-	avg.tmax = mean(x$TMAX,na.rm=TRUE))}))
-
-temp.max<-rbindlist(lapply(names(temp.max.2.4),function(j){
-	x<-temp.max.2.4[[j]]
-	data.table(
-		station_id = basename(j),
-		mean.t.max = mean(x$TMAX, na.rm=TRUE),
-		sd.t.max = sd(x$TMAX,na.rm=TRUE),
-	        ex.high.max = quantile(x$TMAX,c(.95),na.rm=TRUE),
-		high.max = quantile(x$TMAX,c(.75),na.rm=TRUE),
-		low.max = quantile(x$TMAX,c(.25),na.rm=TRUE),
-		ex.low.max = quantile(x$TMAX,c(.05),na.rm=TRUE))}))
-
-norm.temp.max<-rbindlist(lapply(names(temp.max.2.4),function(i){
-	z<-temp.max.2.4
-	b<-rle(subset(z,z$TMAX>=temp.max$ex.high.max[i]))
-	c<-rle(subset(z,z$TMAX>=temp.max$high.max[i]))
-	f<-rle(subset(z,z$TMAX<=temp.max$ex.low.max[i]))
-	g<-rle(subset(z,z$TMAX<=temp.max$low.max[i]))
-	h<-with(subset(z,z$TMAX>=temp.max$ex.high.max[i]),aggregate(TMAX~YEAR,FUN=sum,na.rm=TRUE))
-	j<-with(subset(z,z$TMAX>=temp.max$high.max[i]),aggregate(TMAX~YEAR,FUN=sum,na.rm=TRUE))
-	k<-with(subset(z,z$TMAX<=temp.max$ex.low.max[i]),aggregate(TMAX~YEAR,FUN=sum,na.rm=TRUE))
-	m<-with(subset(z,z$TMAX<=temp.max$low.max[i]),aggregate(TMAX~YEAR,FUN=sum,na.rm=TRUE))
-data.table(
-	station_id = basename(i),
-	tmax.avg = mean(z$TMAX,na.rm=TRUE),
-	tmax.sd = sd(z$TMAX,na.rm=TRUE),
-	tmax.xhigh.u = mean(h,na.rm=TRUE),
-	tmax.xhigh.sd = sd(h,sum,na.rm=TRUE),
-	tmax.high.u = mean(j,sum,na.rm=TRUE),
-	tmax.high.sd = sd(j,na.rm=TRUE),
-	tmax.xlow.u = mean(k,na.rm=TRUE),
-	tmax.xlow.sd = sd(k,na.rm=TRUE),
-	tmax.low.u = mean(m,na.rm=TRUE),
-	tmax.low.sd = sd(m,na.rm=TRUE),
-	tmax.xhigh.length.u = mean(b$length[b$values]),
-	tmax.xhigh.length.sd = sd(b$length[b$values]),
-	tmax.high.length.u = mean(c$length[c$values]),
-	tmax.high.length.sd = sd(c$length[c$values]),
-	tmax.xlow.length.u = mean(f$length[f$values]),
-	tmax.xlow.length.sd = sd(f$length[f$values]),
-	tmax.low.length.u = mean(g$length[g$values]),
-	tmax.low.length.sd = sd(g$length[g$values]))}))
+#avg.tmax<-rbindlist(lapply(names(temp.max.2.4),function(e){
+#        x<-temp.max.2.4[[e]]
+#        data.table(
+#	station_id = basename(e),
+#	avg.tmax = mean(x$TMAX,na.rm=TRUE))}))
 
 
-temp.min<-with(clim.5,subset(clim.5,data.miss.tmin<=0.1,select=c("station_id","n_rows","data.miss.tmin")))
+#tmax<-rbindlist(lapply(seq_along(temp.max.2.4),function(j){
+#	s<-names(temp.max.2.4)[j]
+#	x<-temp.max.2.4[[j]]
+#	data.table(
+#		station_id = s,
+#		mean.t.max = mean(x$TMAX, na.rm=TRUE),
+#		sd.t.max = sd(x$TMAX,na.rm=TRUE),
+#	        ex.high.max = quantile(x$TMAX,c(.95),na.rm=TRUE),
+#		high.max = quantile(x$TMAX,c(.75),na.rm=TRUE),
+#		low.max = quantile(x$TMAX,c(.25),na.rm=TRUE),
+#		ex.low.max = quantile(x$TMAX,c(.05),na.rm=TRUE))}))
 
-temp.min.1.1<-as.vector(temp.min$station_id)
+tmax<-rbindlist(temp.max.2.4,idcol="station_id",fill=TRUE)
 
-temp.min.1.2<-file.path(paste0(temp.min.1.1,".csv"))
+limits<-tmax[,.(
+	mean.tmax = mean(TMAX, na.rm=TRUE),
+	sd.tmax = sd(TMAX,na.rm=TRUE),
+	xhigh.tmax = quantile(TMAX,c(.95),na.rm=TRUE),
+	high.tmax = quantile(TMAX,c(.75),na.rm=TRUE),
+	low.tmax = quantile(TMAX,c(.25),na.rm=TRUE),
+	xlow.tmax = quantile(TMAX,c(.05),na.rm=TRUE)),
+	by = station_id]
 
-temp.min.1.3<-file.path("data/ghcn-daily",temp.min.1.2)
+tmax<-limits[tmax,on = "station_id"]
 
-temp.min.1.4<-setNames(lapply(temp.min.1.3,fread),tools::file_path_sans_ext(basename(temp.min.1.3)))
+norm<-function(y){
+	r<-rle(y)
+	lengths <- r$lengths[r$values]
+	list(
+		mean = if (length(lengths)) mean(lengths) else NA_real_,
+		sd = if (length(lengths)) sd(lengths) else NA_real_)}
 
-temp.min.2.1<-map(temp.min.1.4,~.x%>%
-	mutate(DATE = as.Date(DATE),
-	YEAR = lubridate::year(DATE),
-	MONTH = lubridate::month(DATE),
-	DAY = lubridate::day(DATE)))
+norm.tmax<-tmax[,{
+	xhigh<-norm(TMAX>=xhigh.tmax)
+	high<-norm(TMAX>=high.tmax)
+	low<-norm(TMAX<=low.tmax)
+	xlow<-norm(TMAX<=xlow.tmax)
+.(
+        tmax.avg = mean(TMAX,na.rm=TRUE),
+        tmax.sd = sd(TMAX,na.rm=TRUE),
+        tmax.xhigh.length.u = xhigh$mean,
+        tmax.xhigh.length.sd = xhigh$sd,
+        tmax.high.length.u = high$mean,
+        tmax.high.length.sd = high$sd,
+        tmax.xlow.length.u = xlow$mean,
+        tmax.xlow.length.sd = xlow$sd,
+        tmax.low.length.u = low$mean,
+        tmax.low.length.sd = low$sd)},
+by=station_id]
 
-temp.min.2.2<-map(temp.min.2.1, ~.x %>%
-	filter(YEAR >= 1973, YEAR <= 2023))
+#norm.tmax<-rbindlist(lapply(seq_along(temp.max.2.4),function(i){
+#	stn<-names(temp.max.2.4)[i]
+#	z<-temp.max.2.4[[i]]
+#	xhigh<-tmax[station_id==i,ex.high.max]
+#	high<-tmax[station_id==i,high.max]
+#	low<-tmax[station_id==i,low.max]
+#	xlow<-tmax[station_id==i,ex.low.max]
+#	b<-rle(z$TMAX>=xhigh)
+#	c<-rle(z$TMAX>=high)
+#	f<-rle(z$TMAX<=xlow)
+#	g<-rle(z$TMAX<=low)
+#data.table(
+#	station_id = stn,
+#	tmax.avg = mean(z$TMAX,na.rm=TRUE),
+#	tmax.sd = sd(z$TMAX,na.rm=TRUE),
+#	tmax.xhigh.length.u = mean(b$lengths[b$values]),
+#	tmax.xhigh.length.sd = sd(b$lengths[b$values]),
+#	tmax.high.length.u = mean(c$lengths[c$values]),
+##	tmax.high.length.sd = sd(c$lengths[c$values]),
+#	tmax.xlow.length.u = mean(f$lengths[f$values]),
+#	tmax.xlow.length.sd = sd(f$lengths[f$values]),
+#	tmax.low.length.u = mean(g$lengths[g$values]),
+#	tmax.low.length.sd = sd(g$lengths[g$values]))}))
 
-temp.min.2.3 <- lapply(temp.min.2.2, function(dt)
-	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
+#for(h in norm.tmax$station_id){
+#	z<-temp.max.2.4[[h]]
+#	xhigh<-tmax[station_id==h,xhigh.tmax]
+ #       high<-tmax[station_id==h,high.max]
+  #      low<-tmax[station_id==h,low.max]
+   #     xlow<-tmax[station_id==h,ex.low.max]
+    #    q<-subset(z,z$TMAX>=tmax$xhigh)
+#if(nrow(q)>0){ 
+#	w<-aggregate(TMAX~YEAR,q,FUN=sum,na.rm=TRUE)
+#	norm.tmax$tmax.xhigh.u[h]<-mean(w$TMAX,na.rm=TRUE)
+ #       norm.tmax$tmax.xhigh.sd[h]<-sd(w$TMAX,sum,na.rm=TRUE)}
+  #      j<-subset(z,z$TMAX>=high)
+#if(nrow(j)>0){
+#	u<-aggregate(TMAX~YEAR,j,FUN=sum,na.rm=TRUE)
+#	norm.tmax$tmax.high.u[h]<-mean(u$TMAX,sum,na.rm=TRUE)
+ #       norm.tmax$tmax.high.sd[h]<-sd(u$TMAX,na.rm=TRUE)}
+  #      k<-subset(z,z$TMAX<=xlow)
+#if(nrow(k)>0){
+#	v<-aggregate(TMAX~YEAR,k,FUN=sum,na.rm=TRUE)
+#	norm.tmax$tmax.xlow.u[h]<-mean(v$TMAX,na.rm=TRUE)
+ #       norm.tmax$tmax.xlow.sd[h]<-sd(v$TMAX,na.rm=TRUE)
+#}
+#	m<-subset(z,z$TMAX<=low)
+#if(nrow(m)>0){
+#	n<-aggregate(TMAX~YEAR,m,FUN=sum,na.rm=TRUE)
+#	norm.tmax$tmax.low.u[h]<-mean(n$TMAX,na.rm=TRUE)
+ #       norm.tmax$tmax.low.sd[h]<-sd(n$TMAX,na.rm=TRUE)}}
+
+
+#temp.min<-with(clim.5,subset(clim.5,data.miss.tmin<=0.1,select=c("station_id","n_rows","data.miss.tmin")))
+
+#temp.min.1.1<-as.vector(temp.min$station_id)
+
+#temp.min.1.2<-file.path(paste0(temp.min.1.1,".csv"))
+
+#temp.min.1.3<-file.path("data/ghcn-daily",temp.min.1.2)
+
+#temp.min.1.4<-setNames(lapply(temp.min.1.3,fread),tools::file_path_sans_ext(basename(temp.min.1.3)))
+
+#temp.min.2.1<-map(temp.min.1.4,~.x%>%
+#	mutate(DATE = as.Date(DATE),
+#	YEAR = lubridate::year(DATE),
+#	MONTH = lubridate::month(DATE),
+#	DAY = lubridate::day(DATE)))
+
+#temp.min.2.2<-map(temp.min.2.1, ~.x %>%
+#	filter(YEAR >= 1973, YEAR <= 2023))
+
+#temp.min.2.3 <- lapply(temp.min.2.2, function(dt)
+#	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
 #151
-temp.min.2.3<-temp.min.2.3[sapply(temp.min.2.3,function(a) "TMIN" %in% names(a))]
+#temp.min.2.3<-temp.min.2.3[sapply(temp.min.2.3,function(a) "TMIN" %in% names(a))]
 
-temp.min.2.4<- lapply(temp.min.2.3,function(b){
-	b$TMIN<-as.numeric(b$TMIN)/10
-	b$TMIN<-b$TMIN-32
-	b$TMIN<-b$TMIN/1.8
-	b})
+#temp.min.2.4<- lapply(temp.min.2.3,function(b){
+#	b$TMIN<-as.numeric(b$TMIN)/10
+#	b$TMIN<-b$TMIN-32
+#	b$TMIN<-b$TMIN/1.8
+#	b})
 
-avg.tmin<-rbindlist(lapply(names(temp.min.2.4),function(w){
-	x<-temp.min.2.4[[w]]
-	data.table(
-	station_id = basename(w),
-	avg.tmin = mean(x$TMIN,na.rm=TRUE))}))
+#avg.tmin<-rbindlist(lapply(names(temp.min.2.4),function(w){
+#	x<-temp.min.2.4[[w]]
+#	data.table(
+#	station_id = basename(w),
+#	avg.tmin = mean(x$TMIN,na.rm=TRUE))}))
 
-temp.min<-rbindlist(lapply(names(temp.min.2.4),function(i){
-	x<-temp.min.2.4[[i]]
-	data.table(
-		station_id = basename(i),
-	        mean.t.min = mean(x$TMIN,na.rm=TRUE),
-		sd.t.min = sd(x$TMIN,na.rm=TRUE),
-	        ex.high.min = quantile(x$TMIN,c(.95),na.rm=TRUE),
-		high.min = quantile(x$TMIN,c(.75),na.rm=TRUE),
-		low.min = quantile(x$TMIN,c(.25),na.rm=TRUE),
-		ex.low.min = quantile(x$TMIN,c(.05),na.rm=TRUE))}))
+#temp.min<-rbindlist(lapply(names(temp.min.2.4),function(i){
+#	x<-temp.min.2.4[[i]]
+#	data.table(
+#		station_id = basename(i),
+#	        mean.t.min = mean(x$TMIN,na.rm=TRUE),
+#		sd.t.min = sd(x$TMIN,na.rm=TRUE),
+#	        ex.high.min = quantile(x$TMIN,c(.95),na.rm=TRUE),
+#		high.min = quantile(x$TMIN,c(.75),na.rm=TRUE),
+#		low.min = quantile(x$TMIN,c(.25),na.rm=TRUE),
+#		ex.low.min = quantile(x$TMIN,c(.05),na.rm=TRUE))}))
 
-norm.temp.min<-rbindlist(lapply(names(temp.min.2.4),function(i){
-	z<-temp.min.2.4[[i]]
-	a<-with(subset(z,z$TMIN>=temp.min$ex.high.min[i]),aggregate(TMIN~YEAR,FUN=sum,na.rm=TRUE))
-	b<-with(subset(z,z$TMIN>=temp.min$high.min[i]),aggregate(TMIN~YEAR,FUN=sum,na.rm=TRUE))
-	c<-with(subset(z,z$TMIN<=temp.min$low.min[i]),aggregate(TMIN~YEAR,FUN=sum,na.rm=TRUE))
-	f<-with(subset(z,z$TMIN<=temp.min$low.min[i]),aggregate(TMIN~YEAR,FUN=sum,na.rm=TRUE))
-	d<-rle(subset(z,z$TMIN>=temp.min$ex.high.min[i]))
-	e<-rle(subset(z,z$TMIN>=temp.min$high.min[i]))
-	h<-rle(subset(z,z$TMIN<=temp.min$ex.low.min[i]))
-	j<-rle(subset(z,z$TMIN<=temp.min$high.min[i]))
-data.table(
-	station_id = basename(i),
-	tmin.avg = mean(z$TMIN,na.rm=TRUE),
-	tmin.sd = sd(z$TMIN,na.rm=TRUE),
-	min.xhigh.u = mean(a,na.rm=TRUE),
-	tmin.xhigh.sd = sd(a,na.rm=TRUE),
-	tmin.high = mean(b,na.rm=TRUE),
-	tmin.high.sd = sd(b,na.rm=TRUE),
-	tmin.xlow = mean(c,na.rm=TRUE),
-	tmin.xlow.sd = sd(c,na.rm=TRUE),
-	tmin.low = mean(f,na.rm=TRUE),
-	tmin.low.sd = sd(f,na.rm=TRUE),
-	tmin.xhigh.length.u = mean(d$length[d$values]),
-	tmin.xhigh.length.sd = sd(d$length[d$values]),
-	tmin.high.length.u = mean(e$length[e$values]),
-	tmin.high.length.sd = sd(e$length[e$values]),
-	tmin.xlow.length.u = mean(h$length[h$values]),
-	tmin.xlow.length.sd = sd(h$length[h$values]),
-	tmin.low.length.u = mean(j$length[j$values]),
-	tmin.low.length.sd = sd(j$length[j$values]))}))
+#norm.tmin<-rbindlist(lapply(names(temp.min.2.4),function(i){
+#	z<-temp.min.2.4[[i]]
+#	d<-rle(subset(z,z$TMIN>=temp.min$ex.high.min[i]))
+#	e<-rle(subset(z,z$TMIN>=temp.min$high.min[i]))
+#	h<-rle(subset(z,z$TMIN<=temp.min$ex.low.min[i]))
+#	j<-rle(subset(z,z$TMIN<=temp.min$high.min[i]))
+#data.table(
+#	station_id = i,
+#	tmin.xhigh.length.u = mean(d$length[d$values]),
+#	tmin.xhigh.length.sd = sd(d$length[d$values]),
+#	tmin.high.length.u = mean(e$length[e$values]),
+#	tmin.high.length.sd = sd(e$length[e$values]),
+#	tmin.xlow.length.u = mean(h$length[h$values]),
+#	tmin.xlow.length.sd = sd(h$length[h$values]),
+#	tmin.low.length.u = mean(j$length[j$values]),
+#	tmin.low.length.sd = sd(j$length[j$values]))}))
 
+#for(j in names(temp.min.2.4)){
+#	z<-temp.min.2.4[[j]]
+ #       a<-subset(z,z$TMIN>=temp.min$ex.high.min[j])
+#if(nrow(a)>0){
+#	g<-aggregate(TMIN~YEAR,a,FUN=sum,na.rm=TRUE)
+#	norm.tmin$min.xhigh.u[j]<-mean(g$TMIN,na.rm=TRUE)
+ #       norm.tmin$tmin.xhigh.sd[j]<-sd(g$TMIN,na.rm=TRUE)
+#}
+#	b<-subset(z,z$TMIN>=temp.min$high.min[j])
+#if(nrow(b)>0){
+#	d<-aggregate(TMIN~YEAR,b,FUN=sum,na.rm=TRUE)
+#	norm.tmin$tmin.high[j]<-mean(d$TMIN,na.rm=TRUE)
+ #       norm.tmin$tmin.high.sd[j]<-sd(d$TMIN,na.rm=TRUE)
+#}
+#	c<-subset(z,z$TMIN<=temp.min$low.min[j])
+#if(nrow(c)>0){
+#	i<-aggregate(TMIN~YEAR,c,FUN=sum,na.rm=TRUE)
+#	norm.tmin$tmin.xlow[j]<-mean(i$TMIN,na.rm=TRUE)
+ #       norm.tmin$tmin.xlow.sd[j]<-sd(i$TMIN,na.rm=TRUE)
+#}
+#	f<-subset(z,z$TMIN<=temp.min$low.min[j])
+#if(nrow(f)>0){
+#	k<-aggregate(TMIN~YEAR,f,FUN=sum,na.rm=TRUE)
+#	norm.tmin$tmin.low.u[j]<-mean(k$TMIN,na.rm=TRUE)
+ #       norm.tmin$tmin.low.sd[j]<-sd(k$TMIN,na.rm=TRUE)
+#}}
 
-one<-merge(temp.max.1,temp.min.1,by="station_id",all=TRUE)
-two<-merge(one,prcp.1,by="station_id",all=TRUE)
+#one<-merge(temp.max.1,temp.min.1,by="station_id",all=TRUE)
+#two<-merge(one,prcp.1,by="station_id",all=TRUE)
 
-soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/lp.clim.csv")
+#soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/lp.clim.csv")
 
-soil[,c("tceq","orgm","orgc","totc","nitkjd","ecec","cfgr","cfvo","clay","silt","sand","phaq","phetol","wg1500")]<-NULL
+#soil[,c("tceq","orgm","orgc","totc","nitkjd","ecec","cfgr","cfvo","clay","silt","sand","phaq","phetol","wg1500")]<-NULL
 
-soil.all<-merge(soil,two,by="station_id",all.x=FALSE,all.y=TRUE)
+#soil.all<-merge(soil,two,by="station_id",all.x=FALSE,all.y=TRUE)
 
-soil.all<-soil.all %>% mutate(start.date = date %m-% years(1))
+#soil.all<-soil.all %>% mutate(start.date = date %m-% years(1))
 
-stations<-soil.all$station_id
+#stations<-soil.all$station_id
 
-prcp.1<-rbindlist(lapply(stations,function(i){
-        x<-precip.2.5[[i]]
-        x[soil.all,on=.(DATE<=date,DATE>=start.date)]
-        a<-rle(x$PRCP==0)
-data.table(
-        station_id = basename(i),
-        prcp.avg = mean(x$PRCP,na.rm=TRUE),
-        soil.prcp.mean = mean(x$PRCP!=0,na.rm=TRUE),
-        prcp.event = sum(x$PRCP!=0,na.rm=TRUE),
-        dry.days = sum(x$PRCP==0,na.rm=TRUE),
-        prcp.high = sum(x$PRCP>=prcp$high.prcp.events[i],na.rm=TRUE),
-        prcp.xhigh = sum(x$PRCP<=prcp$ex.high.prcp.events[i],na.rm=TRUE),
-        avg.dry.days = mean(a$length[a$values]))}))
+#prcp.1<-rbindlist(lapply(stations,function(i){
+ #       x<-precip.2.5[[i]]
+  #      x[soil.all,on=.(DATE<=date,DATE>=start.date)]
+   #     a<-rle(x$PRCP==0)
+#data.table(
+ #       station_id = basename(i),
+  #      prcp.avg = mean(x$PRCP,na.rm=TRUE),
+   #     soil.prcp.mean = mean(x$PRCP!=0,na.rm=TRUE),
+    #    prcp.event = sum(x$PRCP!=0,na.rm=TRUE),
+     #   dry.days = sum(x$PRCP==0,na.rm=TRUE),
+      #  prcp.high = sum(x$PRCP>=prcp$high.prcp.events[i],na.rm=TRUE),
+       # prcp.xhigh = sum(x$PRCP<=prcp$ex.high.prcp.events[i],na.rm=TRUE),
+        #avg.dry.days = mean(a$length[a$values]))}))
 
-temp.min.1<-rbindlist(lapply(names(temp.min.2.4),function(p){
-        y<-temp.min.2.4[[p]]
-        d<-rle(y$TMIN>=temp.min$ex.high.min[p])
-        e<-rle(y$TMIN>=temp.min$high.min[p])
-        h<-rle(y$TMIN<=temp.min$ex.low.min[p])
-        j<-rle(y$TMIN<=temp.min$high.min[p])
-data.table(
-        station_id = basename(p),
-        tmin.avg=mean(y$TMIN,na.rm=TRUE),
-        tmin.xhigh=sum(y$TMIN>=temp.min$ex.high.min[p],na.rm=TRUE),
-        tmin.high=sum(y$TMIN>=temp.min$high.min[p],na.rm=TRUE),
-        tmin.xlow=sum(y$TMIN<=temp.min$ex.low.min[p],na.rm=TRUE),
-        tmin.low<-sum(y$TMIN<=temp.min$low.min[p],na.rm=TRUE),
-        tmin.avg.xhigh = mean(d$length[d$values]),
-        tmin.avg.high = mean(e$length[e$values]),
-        tmin.avg.xlow = mean(h$length[h$values]),
-        tmin.avg.low = mean(j$length[j$values]))}))
+#temp.min.1<-rbindlist(lapply(names(temp.min.2.4),function(p){
+ #       y<-temp.min.2.4[[p]]
+  #      d<-rle(y$TMIN>=temp.min$ex.high.min[p])
+   #     e<-rle(y$TMIN>=temp.min$high.min[p])
+    #    h<-rle(y$TMIN<=temp.min$ex.low.min[p])
+     #   j<-rle(y$TMIN<=temp.min$high.min[p])
+#data.table(
+ #       station_id = basename(p),
+  #      tmin.avg=mean(y$TMIN,na.rm=TRUE),
+   #     tmin.xhigh=sum(y$TMIN>=temp.min$ex.high.min[p],na.rm=TRUE),
+    #    tmin.high=sum(y$TMIN>=temp.min$high.min[p],na.rm=TRUE),
+     #   tmin.xlow=sum(y$TMIN<=temp.min$ex.low.min[p],na.rm=TRUE),
+      #  tmin.low<-sum(y$TMIN<=temp.min$low.min[p],na.rm=TRUE),
+       # tmin.avg.xhigh = mean(d$length[d$values]),
+        #tmin.avg.high = mean(e$length[e$values]),
+        #tmin.avg.xlow = mean(h$length[h$values]),
+        #tmin.avg.low = mean(j$length[j$values]))}))
 
-temp.max.1<-rbindlist(lapply(names(temp.max.2.4),function(s){
-        y<-temp.max.2.4[[s]]
-        b<-rle(y$TMAX>=temp.max$ex.high.max[s])
-        c<-rle(y$TMAX>=temp.max$high.max[s])
-        f<-rle(y$TMAX<=temp.max$ex.low.max[s])
-        g<-rle(y$TMAX<=temp.max$low.max[s])
-data.table(
-        station_id = basename(s),
-        tmax.avg = mean(y$TMAX,na.rm=TRUE),
-        tmax.xhigh = sum(y$TMAX>=temp.max$ex.high.max[s],na.rm=TRUE),
-        tmax.high = sum(y$TMAX>=temp.max$high.max[s],na.rm=TRUE),
-        tmax.xlow = sum(y$TMAX<=temp.max$ex.low.max[s],na.rm=TRUE),
-        tmax.low = sum(y$TMAX<=temp.max$low.max[s],na.rm=TRUE),
-        tmax.avg.xhigh = mean(b$length[b$values]),
-        tmax.avg.high = mean(c$length[c$values]),
-        tmax.avg.xlow = mean(f$length[f$values]),
-        tmax.avg.low = mean(g$length[g$values]))}))
+#temp.max.1<-rbindlist(lapply(names(temp.max.2.4),function(s){
+ #       y<-temp.max.2.4[[s]]
+  #      b<-rle(y$TMAX>=temp.max$ex.high.max[s])
+   #     c<-rle(y$TMAX>=temp.max$high.max[s])
+    #    f<-rle(y$TMAX<=temp.max$ex.low.max[s])
+     #   g<-rle(y$TMAX<=temp.max$low.max[s])
+#data.table(
+ #       station_id = basename(s),
+  #      tmax.avg = mean(y$TMAX,na.rm=TRUE),
+   #     tmax.xhigh = sum(y$TMAX>=temp.max$ex.high.max[s],na.rm=TRUE),
+    #    tmax.high = sum(y$TMAX>=temp.max$high.max[s],na.rm=TRUE),
+     #   tmax.xlow = sum(y$TMAX<=temp.max$ex.low.max[s],na.rm=TRUE),
+      #  tmax.low = sum(y$TMAX<=temp.max$low.max[s],na.rm=TRUE),
+       # tmax.avg.xhigh = mean(b$length[b$values]),
+        #tmax.avg.high = mean(c$length[c$values]),
+        #tmax.avg.xlow = mean(f$length[f$values]),
+        #tmax.avg.low = mean(g$length[g$values]))}))
 
 
 #soil.all$date<-as.Date(soil.all$date)
@@ -413,9 +489,9 @@ data.table(
 
 #soil.all<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.all.csv")
 
-three<-merge(soil.all,map.1,all.x=TRUE)
-four<-merge(three,avg.tmax,all.x=TRUE)
-final<-merge(four,avg.tmin,all.x=TRUE)
+#three<-merge(soil.all,map.1,all.x=TRUE)
+#four<-merge(three,avg.tmax,all.x=TRUE)
+#final<-merge(four,avg.tmin,all.x=TRUE)
 
 #prcp.final<-with(final,subset(final,!is.na(map.PRCP)))
 #tmax.final<-with(final,subset(final,!is.na(avg.tmax)))
