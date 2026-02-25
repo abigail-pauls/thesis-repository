@@ -1,36 +1,36 @@
-#library(lubridate)
-#library(tidyverse)
-#library(data.table)
+library(lubridate)
+library(tidyverse)
+library(data.table)
 #library(jsonlite)
 #library(sf)
 
-#clim<-read.csv("/disks/home/abigail/thesis-repository/code/data/clim.dates.csv")
+clim<-read.csv("/disks/home/abigail/thesis-repository/code/data/clim.dates.csv")
 
-#clim.1<-with(clim,subset(clim,min.date<="1973-01-01"&max.date>="2023-01-01"))
-#clim.1.1<-as.vector(clim.1$station_id)
-#clim.1.2.files<-file.path("data/ghcn-daily",clim.1.1)
-#clim.1.3.files<-setNames(lapply(clim.1.2.files,fread),tools::file_path_sans_ext(basename(clim.1.2.files)))
+clim.1<-with(clim,subset(clim,min.date<="1973-01-01"&max.date>="2023-01-01"))
+clim.1.1<-as.vector(clim.1$station_id)
+clim.1.2.files<-file.path("data/ghcn-daily",clim.1.1)
+clim.1.3.files<-setNames(lapply(clim.1.2.files,fread),tools::file_path_sans_ext(basename(clim.1.2.files)))
 
-#clim.2<-map(clim.1.3.files,~.x %>%
-#	mutate(DATE = as.Date(DATE),
-#	YEAR = lubridate::year(DATE),
-#	MONTH = lubridate::month(DATE),
-#	DAY = lubridate::day(DATE)))
+clim.2<-map(clim.1.3.files,~.x %>%
+	mutate(DATE = as.Date(DATE),
+	YEAR = lubridate::year(DATE),
+	MONTH = lubridate::month(DATE),
+	DAY = lubridate::day(DATE)))
 
-#clim.3<-map(clim.2, ~.x %>% 
-#	filter(YEAR >= 1973, YEAR <= 2023))
+clim.3<-map(clim.2, ~.x %>% 
+	filter(YEAR >= 1973, YEAR <= 2023))
 
-#clim.4 <- lapply(clim.3, function(dt)
-#	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
+clim.4 <- lapply(clim.3, function(dt)
+	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
 
-#clim.5<-rbindlist(lapply(names(clim.4),function(h){
-#	dt<-clim.4[[h]]
-#	data.table(
-#		station_id = basename(h),n_rows = nrow(dt),min.date=min(dt$DATE, na.rm = TRUE),max.date=max(dt$DATE, na.rm = TRUE),
-#		data.miss.precip = (sum(is.na(dt$PRCP)))/(nrow(dt)),
-#		data.miss.tmax = (sum(is.na(dt$TMAX)))/(nrow(dt)),
-#		data.miss.tmin = (sum(is.na(dt$TMIN)))/(nrow(dt)),
-#		data.miss.tavg = (sum(is.na(dt$TAVG)))/(nrow(dt)))}))
+clim.5<-rbindlist(lapply(names(clim.4),function(h){
+	dt<-clim.4[[h]]
+	data.table(
+		station_id = basename(h),n_rows = nrow(dt),min.date=min(dt$DATE, na.rm = TRUE),max.date=max(dt$DATE, na.rm = TRUE),
+		data.miss.precip = (sum(is.na(dt$PRCP)))/(nrow(dt)),
+		data.miss.tmax = (sum(is.na(dt$TMAX)))/(nrow(dt)),
+		data.miss.tmin = (sum(is.na(dt$TMIN)))/(nrow(dt)),
+		data.miss.tavg = (sum(is.na(dt$TAVG)))/(nrow(dt)))}),fill=TRUE)
 
 #precip<-with(clim.5,subset(clim.5,data.miss.precip <=0.1,select = c("station_id","n_rows","data.miss.precip")))
 #precip.1.1<-as.vector(precip$station_id)
@@ -115,43 +115,42 @@
 #	norm.prcp$prcp.xhigh.sd[i]<-sd(p$PRCP,na.rm=TRUE)}}
 
 
-#temp.max.0<-with(clim.5,subset(clim.5,data.miss.tmax<=0.1,select=c("station_id","n_rows","data.miss.tmax")))
+temp.max.0<-with(clim.5,subset(clim.5,data.miss.tmax<=0.1,select=c("station_id","n_rows","data.miss.tmax")))
 
-#temp.max.1.1<-as.vector(temp.max.0$station_id)
+temp.max.1.1<-as.vector(temp.max.0$station_id)
 
-#temp.max.1.2<-file.path(paste0(temp.max.1.1,".csv"))
+temp.max.1.2<-file.path(paste0(temp.max.1.1,".csv"))
 
-#temp.max.1.3<-file.path("data/ghcn-daily",temp.max.1.2)
+temp.max.1.3<-file.path("data/ghcn-daily",temp.max.1.2)
 
-#temp.max.1.4<-setNames(lapply(temp.max.1.3,fread),tools::file_path_sans_ext(basename(temp.max.1.3)))
+temp.max.1.4<-setNames(lapply(temp.max.1.3,fread),tools::file_path_sans_ext(basename(temp.max.1.3)))
 
-#temp.max.2.1<-map(temp.max.1.4,~.x%>%
-#	mutate(DATE = as.Date(DATE),
-#	YEAR = lubridate::year(DATE),
-#	MONTH = lubridate::month(DATE),
-#	DAY = lubridate::day(DATE)))
+temp.max.2.1<-map(temp.max.1.4,~.x%>%
+	mutate(DATE = as.Date(DATE),
+	YEAR = lubridate::year(DATE),
+	MONTH = lubridate::month(DATE),
+	DAY = lubridate::day(DATE)))
 
-#temp.max.2.2<-map(temp.max.2.1, ~.x %>% 
-#	filter(YEAR >= 1973, YEAR <= 2023))
+temp.max.2.2<-map(temp.max.2.1, ~.x %>% 
+	filter(YEAR >= 1973, YEAR <= 2023))
 #101
-#temp.max.2.3 <- lapply(temp.max.2.2, function(dt)
-#	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
+temp.max.2.3 <- lapply(temp.max.2.2, function(dt)
+	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
 
-#temp.max.2.3<-temp.max.2.3[sapply(temp.max.2.3,function(a) "TMAX" %in% names(a))]
+temp.max.2.3<-temp.max.2.3[sapply(temp.max.2.3,function(a) "TMAX" %in% names(a))]
 
-#temp.max.2.4<- lapply(temp.max.2.3,function(b){
-#	b$TMAX<-as.numeric(b$TMAX)
-#	b$TMAX<-b$TMAX/10
-#	b$TMAX<-b$TMAX-32
-#	b$TMAX<-b$TMAX/1.8
-#	b})
+temp.max.2.4<- lapply(temp.max.2.3,function(b){
+	b$TMAX<-as.numeric(b$TMAX)
+	b$TMAX<-b$TMAX/10
+	b$TMAX<-b$TMAX-32
+	b$TMAX<-b$TMAX/1.8
+	b})
 
-#avg.tmax<-rbindlist(lapply(names(temp.max.2.4),function(e){
-#        x<-temp.max.2.4[[e]]
-#        data.table(
-#	station_id = basename(e),
-#	avg.tmax = mean(x$TMAX,na.rm=TRUE))}))
-
+avg.tmax<-rbindlist(lapply(names(temp.max.2.4),function(e){
+        x<-temp.max.2.4[[e]]
+        data.table(
+	station_id = basename(e),
+	avg.tmax = mean(x$TMAX,na.rm=TRUE))}))
 
 #tmax<-rbindlist(lapply(seq_along(temp.max.2.4),function(j){
 #	s<-names(temp.max.2.4)[j]
@@ -182,8 +181,8 @@ norm<-function(y){
 	r<-rle(y)
 	lengths <- r$lengths[r$values]
 	list(
-		mean = if (length(lengths)) mean(lengths) else NA_real_,
-		sd = if (length(lengths)) sd(lengths) else NA_real_)}
+		mean = if (length(lengths)) mean(lengths,na.rm=TRUE) else NA_real_,
+		sd = if (length(lengths)) sd(lengths,na.rm=TRUE) else NA_real_)}
 
 norm.tmax<-tmax[,{
 	xhigh<-norm(TMAX>=xhigh.tmax)
@@ -203,94 +202,151 @@ norm.tmax<-tmax[,{
         tmax.low.length.sd = low$sd)},
 by=station_id]
 
-#norm.tmax<-rbindlist(lapply(seq_along(temp.max.2.4),function(i){
-#	stn<-names(temp.max.2.4)[i]
-#	z<-temp.max.2.4[[i]]
-#	xhigh<-tmax[station_id==i,ex.high.max]
-#	high<-tmax[station_id==i,high.max]
-#	low<-tmax[station_id==i,low.max]
-#	xlow<-tmax[station_id==i,ex.low.max]
-#	b<-rle(z$TMAX>=xhigh)
-#	c<-rle(z$TMAX>=high)
-#	f<-rle(z$TMAX<=xlow)
-#	g<-rle(z$TMAX<=low)
-#data.table(
-#	station_id = stn,
-#	tmax.avg = mean(z$TMAX,na.rm=TRUE),
-#	tmax.sd = sd(z$TMAX,na.rm=TRUE),
-#	tmax.xhigh.length.u = mean(b$lengths[b$values]),
-#	tmax.xhigh.length.sd = sd(b$lengths[b$values]),
-#	tmax.high.length.u = mean(c$lengths[c$values]),
-##	tmax.high.length.sd = sd(c$lengths[c$values]),
-#	tmax.xlow.length.u = mean(f$lengths[f$values]),
-#	tmax.xlow.length.sd = sd(f$lengths[f$values]),
-#	tmax.low.length.u = mean(g$lengths[g$values]),
-#	tmax.low.length.sd = sd(g$lengths[g$values]))}))
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xhigh.u = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xhigh.sd = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.high.u = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.high.sd = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xlow.u = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xlow.sd = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.low.u = NA_real_)
+norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.low.sd = NA_real_)
 
-#for(h in norm.tmax$station_id){
-#	z<-temp.max.2.4[[h]]
-#	xhigh<-tmax[station_id==h,xhigh.tmax]
- #       high<-tmax[station_id==h,high.max]
-  #      low<-tmax[station_id==h,low.max]
-   #     xlow<-tmax[station_id==h,ex.low.max]
-    #    q<-subset(z,z$TMAX>=tmax$xhigh)
-#if(nrow(q)>0){ 
-#	w<-aggregate(TMAX~YEAR,q,FUN=sum,na.rm=TRUE)
-#	norm.tmax$tmax.xhigh.u[h]<-mean(w$TMAX,na.rm=TRUE)
- #       norm.tmax$tmax.xhigh.sd[h]<-sd(w$TMAX,sum,na.rm=TRUE)}
-  #      j<-subset(z,z$TMAX>=high)
-#if(nrow(j)>0){
-#	u<-aggregate(TMAX~YEAR,j,FUN=sum,na.rm=TRUE)
-#	norm.tmax$tmax.high.u[h]<-mean(u$TMAX,sum,na.rm=TRUE)
- #       norm.tmax$tmax.high.sd[h]<-sd(u$TMAX,na.rm=TRUE)}
-  #      k<-subset(z,z$TMAX<=xlow)
-#if(nrow(k)>0){
-#	v<-aggregate(TMAX~YEAR,k,FUN=sum,na.rm=TRUE)
-#	norm.tmax$tmax.xlow.u[h]<-mean(v$TMAX,na.rm=TRUE)
- #       norm.tmax$tmax.xlow.sd[h]<-sd(v$TMAX,na.rm=TRUE)
-#}
-#	m<-subset(z,z$TMAX<=low)
-#if(nrow(m)>0){
-#	n<-aggregate(TMAX~YEAR,m,FUN=sum,na.rm=TRUE)
-#	norm.tmax$tmax.low.u[h]<-mean(n$TMAX,na.rm=TRUE)
- #       norm.tmax$tmax.low.sd[h]<-sd(n$TMAX,na.rm=TRUE)}}
+for(h in names(temp.max.2.4)){
+	z<-temp.max.2.4[[h]]
+		xhigh<-limits[station_id==h,xhigh.tmax]
+		high<-limits[station_id==h,high.tmax]
+		low<-limits[station_id==h,low.tmax]
+		xlow<-limits[station_id==h,xlow.tmax]
+	q<-subset(z,z$TMAX>=xhigh)
+if(nrow(q)>0){ 
+	w<-aggregate(TMAX~YEAR,q,FUN=sum,na.rm=TRUE)
+	norm.tmax[station_id==h, tmax.xhigh.u := mean(w$TMAX,na.rm=TRUE)]
+	norm.tmax[station_id==h, tmax.xhigh.sd := sd(w$TMAX,na.rm=TRUE)]}
+	j<-subset(z,z$TMAX>=high)
+if(nrow(j)>0){
+	u<-aggregate(TMAX~YEAR,j,FUN=sum,na.rm=TRUE)
+	norm.tmax[station_id==h,tmax.high.u := mean(u$TMAX,na.rm=TRUE)]
+	norm.tmax[station_id==h,tmax.high.sd := sd(u$TMAX,na.rm=TRUE)]}
+	k<-subset(z,z$TMAX<=xlow)
+if(nrow(k)>0){
+	v<-aggregate(TMAX~YEAR,k,FUN=sum,na.rm=TRUE)
+	norm.tmax[station_id==h,tmax.xlow.u := mean(v$TMAX,na.rm=TRUE)]
+	norm.tmax[station_id==h,tmax.xlow.sd := sd(v$TMAX,na.rm=TRUE)]}
+	m<-subset(z,z$TMAX<=low)
+if(nrow(m)>0){
+	n<-aggregate(TMAX~YEAR,m,FUN=sum,na.rm=TRUE)
+	norm.tmax[station_id==h,tmax.low.u:=mean(n$TMAX,na.rm=TRUE)]
+	norm.tmax[station_id==h,tmax.low.sd:=sd(n$TMAX,na.rm=TRUE)]}}
 
 
-#temp.min<-with(clim.5,subset(clim.5,data.miss.tmin<=0.1,select=c("station_id","n_rows","data.miss.tmin")))
+temp.min<-with(clim.5,subset(clim.5,data.miss.tmin<=0.1,select=c("station_id","n_rows","data.miss.tmin")))
 
-#temp.min.1.1<-as.vector(temp.min$station_id)
+temp.min.1.1<-as.vector(temp.min$station_id)
 
-#temp.min.1.2<-file.path(paste0(temp.min.1.1,".csv"))
+temp.min.1.2<-file.path(paste0(temp.min.1.1,".csv"))
 
-#temp.min.1.3<-file.path("data/ghcn-daily",temp.min.1.2)
+temp.min.1.3<-file.path("data/ghcn-daily",temp.min.1.2)
 
-#temp.min.1.4<-setNames(lapply(temp.min.1.3,fread),tools::file_path_sans_ext(basename(temp.min.1.3)))
+temp.min.1.4<-setNames(lapply(temp.min.1.3,fread),tools::file_path_sans_ext(basename(temp.min.1.3)))
 
-#temp.min.2.1<-map(temp.min.1.4,~.x%>%
-#	mutate(DATE = as.Date(DATE),
-#	YEAR = lubridate::year(DATE),
-#	MONTH = lubridate::month(DATE),
-#	DAY = lubridate::day(DATE)))
+temp.min.2.1<-map(temp.min.1.4,~.x%>%
+	mutate(DATE = as.Date(DATE),
+	YEAR = lubridate::year(DATE),
+	MONTH = lubridate::month(DATE),
+	DAY = lubridate::day(DATE)))
 
-#temp.min.2.2<-map(temp.min.2.1, ~.x %>%
-#	filter(YEAR >= 1973, YEAR <= 2023))
+temp.min.2.2<-map(temp.min.2.1, ~.x %>%
+	filter(YEAR >= 1973, YEAR <= 2023))
 
-#temp.min.2.3 <- lapply(temp.min.2.2, function(dt)
-#	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
+temp.min.2.3 <- lapply(temp.min.2.2, function(dt)
+	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
 #151
-#temp.min.2.3<-temp.min.2.3[sapply(temp.min.2.3,function(a) "TMIN" %in% names(a))]
+temp.min.2.3<-temp.min.2.3[sapply(temp.min.2.3,function(a) "TMIN" %in% names(a))]
 
-#temp.min.2.4<- lapply(temp.min.2.3,function(b){
-#	b$TMIN<-as.numeric(b$TMIN)/10
-#	b$TMIN<-b$TMIN-32
-#	b$TMIN<-b$TMIN/1.8
-#	b})
+temp.min.2.4<- lapply(temp.min.2.3,function(b){
+	b$TMIN<-as.numeric(b$TMIN)/10
+	b$TMIN<-b$TMIN-32
+	b$TMIN<-b$TMIN/1.8
+	b})
 
-#avg.tmin<-rbindlist(lapply(names(temp.min.2.4),function(w){
-#	x<-temp.min.2.4[[w]]
-#	data.table(
-#	station_id = basename(w),
-#	avg.tmin = mean(x$TMIN,na.rm=TRUE))}))
+avg.tmin<-rbindlist(lapply(names(temp.min.2.4),function(w){
+	x<-temp.min.2.4[[w]]
+	data.table(
+	station_id = basename(w),
+	avg.tmin = mean(x$TMIN,na.rm=TRUE))}))
+
+tmin<-rbindlist(temp.min.2.4,idcol="station_id",fill=TRUE)
+
+limits<-tmin[,.(
+        mean.tmin = mean(TMIN, na.rm=TRUE),
+        sd.tmin = sd(TMIN,na.rm=TRUE),
+        xhigh.tmin = quantile(TMIN,c(.95),na.rm=TRUE),
+        high.tmin = quantile(TMIN,c(.75),na.rm=TRUE),
+        low.tmin = quantile(TMIN,c(.25),na.rm=TRUE),
+        xlow.tmin = quantile(TMIN,c(.05),na.rm=TRUE)),
+        by = station_id]
+
+tmin<-limits[tmin,on = "station_id"]
+
+norm<-function(y){
+        r<-rle(y)
+        lengths <- r$lengths[r$values]
+        list(
+                mean = if (length(lengths)) mean(lengths,na.rm=TRUE) else NA_real_,
+                sd = if (length(lengths)) sd(lengths,na.rm=TRUE) else NA_real_)}
+
+norm.tmin<-tmin[,{
+        xhigh<-norm(TMIN>=xhigh.tmin)
+        high<-norm(TMIN>=high.tmin)
+        low<-norm(TMIN<=low.tmin)
+        xlow<-norm(TMIN<=xlow.tmin)
+.(
+        tmin.avg = mean(TMIN,na.rm=TRUE),
+        tmin.sd = sd(TMIN,na.rm=TRUE),
+        tmin.xhigh.length.u = xhigh$mean,
+        tmin.xhigh.length.sd = xhigh$sd,
+        tmin.high.length.u = high$mean,
+        tmin.high.length.sd = high$sd,
+        tmin.xlow.length.u = xlow$mean,
+        tmin.xlow.length.sd = xlow$sd,
+        tmin.low.length.u = low$mean,
+        tmin.low.length.sd = low$sd)},
+by=station_id]
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xhigh.u = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xhigh.sd = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.high.u = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.high.sd = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xlow.u = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xlow.sd = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.low.u = NA_real_)
+norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.low.sd = NA_real_)
+
+for(h in names(temp.min.2.4)){
+        z<-temp.min.2.4[[h]]
+                xhigh<-limits[station_id==h,xhigh.tmin]
+                high<-limits[station_id==h,high.tmin]
+                low<-limits[station_id==h,low.tmin]
+                xlow<-limits[station_id==h,xlow.tmin]
+        q<-subset(z,z$TMIN>=xhigh)
+if(nrow(q)>0){
+        w<-aggregate(TMIN~YEAR,q,FUN=sum,na.rm=TRUE)
+        norm.tmin[station_id==h, tmin.xhigh.u := mean(w$TMIN,na.rm=TRUE)]
+        norm.tmin[station_id==h, tmin.xhigh.sd := sd(w$TMIN,na.rm=TRUE)]}
+        j<-subset(z,z$TMIN>=high)
+if(nrow(j)>0){
+        u<-aggregate(TMIN~YEAR,j,FUN=sum,na.rm=TRUE)
+        norm.tmin[station_id==h,tmin.high.u := mean(u$TMIN,na.rm=TRUE)]
+        norm.tmin[station_id==h,tmin.high.sd := sd(u$TMIN,na.rm=TRUE)]}
+        k<-subset(z,z$TMIN<=xlow)
+if(nrow(k)>0){
+        v<-aggregate(TMIN~YEAR,k,FUN=sum,na.rm=TRUE)
+        norm.tmin[station_id==h,tmin.xlow.u := mean(v$TMIN,na.rm=TRUE)]
+        norm.tmin[station_id==h,tmin.xlow.sd := sd(v$TMIN,na.rm=TRUE)]}
+        m<-subset(z,z$TMIN<=low)
+if(nrow(m)>0){
+        n<-aggregate(TMIN~YEAR,m,FUN=sum,na.rm=TRUE)
+        norm.tmin[station_id==h,tmin.low.u:=mean(n$TMIN,na.rm=TRUE)]
+        norm.tmin[station_id==h,tmin.low.sd:=sd(n$TMIN,na.rm=TRUE)]}}
 
 #temp.min<-rbindlist(lapply(names(temp.min.2.4),function(i){
 #	x<-temp.min.2.4[[i]]
