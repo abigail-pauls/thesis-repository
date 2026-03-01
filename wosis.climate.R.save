@@ -1,7 +1,0 @@
-wosis <- read.csv("~/thesis-repository/wosis.lp.date.pro.csv")
-grid_SMU <- read.csv("~/Fall 2025/THESIS/THESIS/grid_SMU.csv")
-smu_latlon <- read.csv("~/Fall 2025/THESIS/THESIS/smu_latlon.csv")
-HWSD2_LAYERS <- read_excel("~/Fall 2025/THESIS/THESIS/HWSD2_LAYERS.xlsx")
-lp.all<-read.csv("~/Fall 2025/THESIS/THESIS/wosis.lp.date.prof.csv")
-ghcl_stations <- read_table("~/Fall 2025/THESIS/ghcnd-stations.txt", col_names = FALSE)
-

@@ -2,9 +2,9 @@ library(tidyverse)
 library(data.table)
 library(readr)
 
-lp.all<-readr::read_delim("wosis.lp.date.prof.csv",show_col_types=FALSE)
+lp.all<-readr::read_delim("/disks/home/abigail/thesis-repository/code/data/wosis.lp.date.prof.csv",show_col_types=FALSE)
 ghcl_stations <- read_fwf(
-  "ghcl_stations.txt",
+  "/disks/home/abigail/thesis-repository/code/data/ghcl_stations.txt",
   fwf_widths(
     c(11, 9, 10, 8, 35, 10),
     c("station_id", "latitude", "longitude", "elevation", "station_name", "extra")
@@ -125,4 +125,4 @@ lp.clim.1<-rename(lp.clim.1,country_name="country_name.x")
 lp.clim.1<-merge(lp.all,ghcl_stations,by=c("lat","lon"),all.x = TRUE,all.y=FALSE)
 
 #save dataframe into thesis repo
-write.csv(lp.clim.1,file="~/thesis-repository/lp.clim.csv",row.names=FALSE)
+write.csv(lp.clim.1,file="~/thesis-repository/code/data/lp.clim.csv",row.names=FALSE)
