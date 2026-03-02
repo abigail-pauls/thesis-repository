@@ -11,7 +11,7 @@
 #soil<-soil %>% mutate(start.date = date %m-% years(1))
 
 #soil[,c("tceq","orgm","orgc","nitkjd","ecec","cfgr","cfvo","clay","silt","sand","phaq","phetol","wg1500",
- #      "max_lat","max_lon","licence","station_name","year","month","month.1","month.2","day","day.1","day.2","day.3","extra","layer_name")]<-NULL
+#	"max_lat","max_lon","licence","station_name","year","month","month.1","month.2","day","day.1","day.2","day.3","extra","layer_name")]<-NULL
 
 #names(soil)[names(soil)=="tceq_avg"]<-"tceq"
 #names(soil)[names(soil)=="orgm_avg"]<-"orgm"
@@ -47,10 +47,6 @@
 #for(i in stations){
 	
 
-#setDT(prcp)
-#setDT(soil)
-#setDT(limits.prcp)
-
 #soil[,row_id := .I]
 #
 #
@@ -79,36 +75,54 @@
 
 #soil[,row_id := .I]
 
-prcp<-rbindlist(precip.2.5,idcol="station_id",fill=TRUE)
+#prcp<-rbindlist(precip.2.5,idcol="station_id",fill=TRUE)
 	
-one<-soil[,c("station_id","date","start.date","row_id")]
-two<-limits.prcp[,c("station_id","xhigh.prcp","high.prcp")]
+#one<-soil[,c("station_id","date","start.date","row_id")]
+#two<-limits.prcp[,c("station_id","xhigh.prcp","high.prcp")]
 
-three<-merge(one,two,by="station_id",all.x=TRUE,all.y=FALSE)
+#three<-merge(one,two,by="station_id",all.x=TRUE,all.y=FALSE)
 
-four<-subset(three,!is.na(three$xhigh.prcp)|!is.na(three$high.prcp))
+#four<-subset(three,!is.na(three$xhigh.prcp)|!is.na(three$high.prcp))
 
-five<-subset(prcp,prcp$PRCP!=0)
-six<-subset(prcp,prcp$PRCP==0)
-seven<-subset(prcp,prcp$PRCP>=four$prcp.xhigh)
-eight<-subset(prcp,prcp$PRCP>=four$prcp.high)
+#five<-subset(prcp,prcp$PRCP!=0)
+#six<-subset(prcp,prcp$PRCP==0)
+#seven<-subset(prcp,prcp$PRCP>=four$prcp.xhigh)
+#eight<-subset(prcp,prcp$PRCP>=four$prcp.high)
 
-prcp.1<-lapply(four$station_id,function(i){
-	start<-four$start.date[i]
-	end<-four$date[i]
-	x<-prcp[station_id==i]
-	x.5<-five[station_id==i,DATE>=start&DATE<=end]
-	x.6<-six[station_id==i,DATE>=start&DATE<=end]
-	x.7<-seven[station_id==i,DATE>=start&DATE<=end]
-	x.8<-eight[station_id==i,DATE>=start&DATE<=end]
-data.table(
-	station_id = i,
-	prcp.avg = mean(x$PRCP,na.rm=TRUE),
-	prcp.mean = mean(x.5$PRCP,na.rm=TRUE),
-	prcp.events= nrow(x.5),
-	dry.days = nrow(x.6),
-	prcp.xhigh = nrow(x.7),
-	prcp.high = nrow(x.8),
-	dry.days.length = norm(x.6)$mean,
-	prcp.high.length = norm(x.8)$mean,
-	prcp.xhigh.length = norm(x.7)$mean)})
+#prcp.1<-map(precip.2.5, ~.x %>% filter(PRCP!=0))
+#prcp.2<-map(precip.2.5, ~.x %>% filter(PRCP==0))
+#prcp.3<-map(precip.2.5, ~.x %>% filter(PRCP>=four$prcp.xhigh))
+#prcp.4<-map(precip.2.5, ~.x %>% filter(PRCP>=four$prcp.high))
+
+#prcp.5<-lapply(four$station_id,function(i){
+#	start<-four$start.date[i]
+#	end<-four$date[i]
+#	x<-precip.2.5[i]
+#	x.5<-prcp.1[i]
+#	x.6<-prcp.2[i]
+#	x.7<-prcp.3[i]
+#	x.8<-prcp.4[i]
+#data.table(
+#	station_id = i,
+#	prcp.avg = mean(x$PRCP,na.rm=TRUE),
+#	prcp.mean = mean(x.5$PRCP,na.rm=TRUE),
+#	prcp.events= nrow(x.5),
+#	dry.days = nrow(x.6),
+#	prcp.xhigh = nrow(x.7),
+#	prcp.high = nrow(x.8),
+#	dry.days.length = norm(x.6)$mean,
+#	prcp.high.length = norm(x.8)$mean,
+#	prcp.xhigh.length = norm(x.7)$mean)})
+
+
+one<-merge(soil,limits.prcp[,.(station_id,xhigh=xhigh.prcp,high=high.prcp)],by="station_id",all.x=TRUE)
+
+setkey(prcp,station_id,DATE)
+
+for(i in seq_along(nrow(one)){
+	start.date<-one$start.date[i]
+	date<-one$date[i]
+	xhigh<-one$xhigh[i]
+	high<-one$high[i]
+z<-prcp[,.(one$station_id[i]),nomatch=0][DATE>=start.date&DATE<=date]
+if(nrow(z)=0)next
