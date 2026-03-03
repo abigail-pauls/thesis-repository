@@ -361,6 +361,14 @@ if(nrow(m)>0){
 	norm.tmin[station_id==h,tmin.low.u:=mean(n$n,na.rm=TRUE)]
 	norm.tmin[station_id==h,tmin.low.sd:=sd(n$n,na.rm=TRUE)]}}
 
+write.csv(norm.prcp,"/disks/home/abigail/thesis-repository/code/data/norm.prcp.csv")
+write.csv(norm.tmax,"/disks/home/abigail/thesis-repository/code/data/norm.tmax.csv")
+write.csv(norm.tmin,"/disks/home/abigail/thesis-repository/code/data/norm.tmin.csv")
+write.csv(prcp,"/disks/home/abigail/thesis-repository/code/data/prcp.csv")
+write.csv(tmax,"/disks/home/abigail/thesis-repository/code/data/tmax.csv")
+write.csv(tmin,"/disks/home/abigail/thesis-repository/code/data/tmin.csv")
+
+
 #soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 
 #soil$date<-as.Date(soil$date,format="%Y-%m-%d")
