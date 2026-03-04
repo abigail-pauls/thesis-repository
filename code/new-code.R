@@ -1,4 +1,5 @@
 library(data.table)
+library(tidyverse)
 
 soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 
@@ -71,18 +72,18 @@ names(soil)[names(soil)=="elevation"]<-"noaa.elev"
 
 #prcp.1<-data.table(
 
-#setDT(soil)
-#setDT(prcp)
-#setDT(limits.prcp)
+setDT(soil)
+setDT(prcp)
+setDT(limits.prcp)
 
-#soil[,row_id := .I]
+soil[,row_id := .I]
 
-#prcp<-rbindlist(precip.2.5,idcol="station_id",fill=TRUE)
+prcp<-rbindlist(precip.2.5,idcol="station_id",fill=TRUE)
 	
-#one<-soil[,c("station_id","date","start.date","row_id")]
-#two<-limits.prcp[,c("station_id","xhigh.prcp","high.prcp")]
+one<-soil[,c("station_id","date","start.date","row_id")]
+two<-limits.prcp[,c("station_id","xhigh.prcp","high.prcp")]
 
-#three<-merge(one,two,by="station_id",all.x=TRUE,all.y=FALSE)
+three<-merge(one,two,by="station_id",all.x=TRUE,all.y=FALSE)
 
 #four<-subset(three,!is.na(three$xhigh.prcp)|!is.na(three$high.prcp))
 
@@ -193,78 +194,82 @@ names(soil)[names(soil)=="elevation"]<-"noaa.elev"
 #	soil$prcp.high.length[i]<-norm(z.3$PRCP)$mean
 #	soil$prcp.xhigh.length[i]<-norm(z.4$PRCP)$mean}
 
-setDT(soil)
-setDT(prcp)
-setDT(limits.prcp)
 
-prcp[, DATE := as.Date(DATE)]
-soil[, start.date := as.Date(start.date)]
-soil[, end.date := as.Date(date)]
+#setDT(soil)
+#setDT(prcp)
+#setDT(limits.prcp)
 
-setkey(prcp, station_id, DATE)
+#prcp[, DATE := as.Date(DATE)]
+#soil[, start.date := as.Date(start.date)]
+#soil[, end.date := as.Date(date)]
 
-soil <- merge(
-  soil,
-  limits.prcp[, .(station_id,
-                  xhigh = xhigh.prcp,
-                  high  = high.prcp)],
-  by = "station_id",
-  all.x = TRUE
-)
+#setkey(prcp, station_id, DATE)
 
-soil[, `:=`(
-  prcp.avg = NA_real_,
-  prcp.mean = NA_real_,
-  prcp.events = NA_integer_,
-  dry.days = NA_integer_,
-  prcp.xhigh = NA_integer_,
-  prcp.high = NA_integer_,
-  dry.days.length = NA_real_,
-  prcp.high.length = NA_real_,
-  prcp.xhigh.length = NA_real_
-)]
+#soil <- merge(
+#  soil,
+#  limits.prcp[, .(station_id,
+#                  xhigh = xhigh.prcp,
+#                  high  = high.prcp)],
+#  by = "station_id",
+#  all.x = TRUE
+#)
 
-mean_spell <- function(cond) {
+#soil[, `:=`(
+#  prcp.avg = NA_real_,
+#  prcp.mean = NA_real_,
+#  prcp.events = NA_integer_,
+#  dry.days = NA_integer_,
+#  prcp.xhigh = NA_integer_,
+#  prcp.high = NA_integer_,
+#  dry.days.length = NA_real_,
+#  prcp.high.length = NA_real_,
+#  prcp.xhigh.length = NA_real_
+#)]
 
-  # Remove NA first (critical)
-  cond <- cond[!is.na(cond)]
+#mean_spell <- function(cond) {
 
-  if (length(cond) == 0L) return(NA_real_)
+#  cond <- cond[!is.na(cond)]
 
-  r <- rle(cond)
+#  if (length(cond) == 0L) return(NA_real_)
 
-  lengths <- r$lengths[r$values == TRUE]
+#  r <- rle(cond)
 
-  if (length(lengths) == 0L) {
-    NA_real_
-  } else {
-    mean(lengths)
-  }
-}
+#  lengths <- r$lengths[r$values == TRUE]
 
-for (i in seq_len(nrow(soil))) {
+#  if (length(lengths) == 0L) {
+#    NA_real_
+#  } else {
+#    mean(lengths)
+#  }
+#}
 
-  st <- soil$station_id[i]
-  sd <- soil$start.date[i]
-  ed <- soil$end.date[i]
-  xh <- soil$xhigh[i]
-  hi <- soil$high[i]
+#for (i in seq_len(nrow(soil))) {
 
-  z <- prcp[station_id == st & DATE >= sd & DATE <= ed]
+ # st <- soil$station_id[i]
+ # sd <- soil$start.date[i]
+#  ed <- soil$end.date[i]
+#  xh <- soil$xhigh[i]
+#  hi <- soil$high[i]
 
-  if (nrow(z) == 0L) next
+ # z <- prcp[station_id == st & DATE >= sd & DATE <= ed]
 
-  pr <- z$PRCP
+  #if (nrow(z) == 0L) next
 
-  soil$prcp.avg[i]   <- mean(pr, na.rm = TRUE)
-  soil$prcp.mean[i]  <- mean(pr[pr != 0], na.rm = TRUE)
+  #pr <- z$PRCP
 
-  soil$prcp.events[i] <- sum(pr != 0)
-  soil$dry.days[i]    <- sum(pr == 0)
-  soil$prcp.xhigh[i]  <- sum(pr >= xh)
-  soil$prcp.high[i]   <- sum(pr >= hi)
+  #soil$prcp.avg[i]   <- mean(pr, na.rm = TRUE)
+#  soil$prcp.mean[i]  <- mean(pr[pr != 0], na.rm = TRUE)
+#
+#  soil$prcp.events[i] <- sum(pr != 0)
+#  soil$dry.days[i]    <- sum(pr == 0)
+#  soil$prcp.xhigh[i]  <- sum(pr >= xh)
+#  soil$prcp.high[i]   <- sum(pr >= hi)
+#
+#  soil$dry.days.length[i]   <- mean_spell(pr == 0)
+#  soil$prcp.high.length[i]  <- mean_spell(pr >= hi)
+#  soil$prcp.xhigh.length[i] <- mean_spell(pr >= xh)
 
-  soil$dry.days.length[i]   <- mean_spell(pr == 0)
-  soil$prcp.high.length[i]  <- mean_spell(pr >= hi)
-  soil$prcp.xhigh.length[i] <- mean_spell(pr >= xh)
-}
+#if(i %% 100==0){
+#print(i)}
+
+#}

@@ -116,6 +116,10 @@ norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.event.u = NA_real_)
 norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.event.sd = NA_real_)
 norm.prcp <- norm.prcp %>% dplyr::mutate(dry.days.u = NA_real_)
 norm.prcp <- norm.prcp %>% dplyr::mutate(dry.days.sd = NA_real_)
+norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.avg.u = NA_real_)
+norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.avg.sd = NA_real_)
+norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.mean.u = NA_real_)
+norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.mean.sd = NA_real_)
 
 for(h in names(precip.2.5)){
 	z<-precip.2.5[[h]]
@@ -152,7 +156,13 @@ if(nrow(a)>0){
 if(nrow(b)>0){
 	d<-b %>% group_by(YEAR) %>% tally()
 	norm.prcp[station_id==h,dry.days.u := mean(d$n,na.rm=TRUE)]
-	norm.prcp[station_id==h,dry.days.sd := sd(d$n,na.rm=TRUE)]}}
+	norm.prcp[station_id==h,dry.days.sd := sd(d$n,na.rm=TRUE)]}
+norm.prcp[station_id==h,prcp.avg.u := mean(z$PRCP, na.rm=TRUE)]
+norm.prcp[station_id==h,prcp.avg.sd := sd(z$PRCP, na.rm=TRUE)]
+	t<-subset(z,z$PRCP!=0)
+if(nrow(t)>0){
+	norm.prcp[station_id==h, prcp.mean.u := mean(t$PRCP,na.rm=TRUE)]
+	norm.prcp[station_id==h, prcp.mean.sd := sd(t$PRCP,na.rm=TRUE)]}}
 
 temp.max.0<-with(clim.5,subset(clim.5,data.miss.tmax<=0.1,select=c("station_id","n_rows","data.miss.tmax")))
 
