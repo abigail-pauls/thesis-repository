@@ -1,0 +1,10 @@
+name: thesis_env
+channels:
+  - defaults
+dependencies:
+  - r-base
+  - r-essentials
+  - r-sf
+  - r-lme4
+  - r-car
+prefix: C:\Users\pauls\miniconda3\envs\thesis_env
