@@ -1,40 +1,8 @@
-#library(data.table)
-#library(tidyverse)
+library(data.table)
+library(tidyverse)
 
-soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
+#soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 #prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/prcp.csv")
-
-soil$date<-as.Date(soil$date,format="%Y-%m-%d")
-
-soil$YEAR  <- format(soil$date,"%Y")
-soil$MONTH <- format(soil$date,"%m")
-soil$DAY   <- format(soil$date,"%d")
-
-soil<-soil %>% filter(YEAR >= 1973, YEAR <= 2023)
-
-soil<-soil %>% mutate(start.date = date %m-% years(1))
-
-soil[,c("tceq","orgm","orgc","nitkjd","ecec","cfgr","cfvo","clay","silt","sand","phaq","phetol","wg1500",
-       "max_lat","max_lon","licence","station_name","year","month","month.1","month.2","day","day.1","day.2","day.3","extra","layer_name")]<-NULL
-
-names(soil)[names(soil)=="tceq_avg"]<-"tceq"
-names(soil)[names(soil)=="orgm_avg"]<-"orgm"
-names(soil)[names(soil)=="orgc_avg"]<-"orgc"
-names(soil)[names(soil)=="nitkjd_avg"]<-"nitkjd"
-names(soil)[names(soil)=="ecec_avg"]<-"ecec"
-names(soil)[names(soil)=="cfgr_avg"]<-"cfgr"
-names(soil)[names(soil)=="cfvo_avg"]<-"cfvo"
-names(soil)[names(soil)=="clay_avg"]<-"clay"
-names(soil)[names(soil)=="silt_avg"]<-"silt"
-names(soil)[names(soil)=="sand_avg"]<-"sand"
-names(soil)[names(soil)=="phaq_avg"]<-"phaq"
-names(soil)[names(soil)=="phetol_avg"]<-"phetol"
-names(soil)[names(soil)=="wg1500_avg"]<-"wg1500"
-names(soil)[names(soil)=="min_lon"]<-"noaa.lon"
-names(soil)[names(soil)=="min_lat"]<-"noaa.lat"
-names(soil)[names(soil)=="latitude"]<-"wosis.lat"
-names(soil)[names(soil)=="longitude"]<-"wosis.lon"
-names(soil)[names(soil)=="elevation"]<-"noaa.elev"
 
 setDT(soil)
 setDT(prcp)
