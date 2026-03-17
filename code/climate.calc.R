@@ -1,7 +1,7 @@
 library(data.table)
 library(tidyverse)
 
-#soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
+soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 #prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/prcp.csv")
 
 setDT(soil)
