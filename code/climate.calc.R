@@ -5,8 +5,8 @@ soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 #prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/prcp.csv")
 
 setDT(soil)
-setDT(prcp)
-setDT(limits.prcp)
+#setDT(prcp)
+#setDT(limits.prcp)
 
 soil[,row_id := .I]
 

@@ -63,7 +63,7 @@ lp.all <- Reduce(function(x, y)
 
 #for(i in test){
 #	final<-paste0(i,"_avg",sep="")
-#check<-rbind(check,data.frame(var=i,orig=nrow(soil.data.1[[i]]),final=sum(!is.na(lp.all[[final]]))))
+#check<-rbind(check,data.frame(var=i,orig=nrow(!is.na(soil.data.1[[i]])),final=sum(!is.na(lp.all[[final]]))))
 #}
 
 ghcl_stations <- read_fwf("/disks/home/abigail/thesis-repository/code/data/ghcl_stations.txt",
