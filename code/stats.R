@@ -6,12 +6,12 @@ library(car)
 
 #data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.csv")
 
-data<-final
+#data<-final
 
-#data$continent<-as.factor(data$continent)
-#data$country_name<-as.factor(data$country_name)
-#data$region<-as.factor(data$region)
-#data$station_id<-as.factor(data$station_id)
+data$continent<-as.factor(data$continent)
+data$country_name<-as.factor(data$country_name)
+data$region<-as.factor(data$region)
+data$station_id<-as.factor(data$station_id)
 
 data$soil.layer<-with(data,ifelse(upper_depth<=20,"one",
 	ifelse(upper_depth>=21&upper_depth<=40,"two",
@@ -50,35 +50,35 @@ data.one<-subset(data,data$soil.layer=="one")
 #data.five<-subset(data,data$soil.layer=="five")
 #data.six<-subset(data,data$soil.layer=="six")
 
-data.one$station_id<-as.character(data.one$station_id)
+#data.one$station_id<-as.character(data.one$station_id)
 
-site<-unique(data.one$station_id)
+#site<-unique(data.one$station_id)
 
-orgc.xhigh.prcp<-data.frame(station_id=character(),slope=numeric(),std.err=numeric(),
-	t.value=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
+#orgc.xhigh.prcp<-data.frame(station_id=character(),slope=numeric(),std.err=numeric(),
+#	t.value=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
+#
+#for(j in site){
+#	a<-subset(data.one,data.one$station_id==j)
+#	a<-na.omit(a[,c("orgc","n.prcp.xhigh")])
+#if(nrow(a)==0) next
+#if(nrow(a) < 3) next
+#if(length(unique(a$n.prcp.xhigh)) < 2) next
+#	model<-lm(orgc~n.prcp.xhigh,data=a)
+#	b<-summary(model)$coefficients
+#	c<-summary(model)
+#if(!"n.prcp.xhigh" %in% rownames(b)) next
+#	orgc.xhigh.prcp<-rbind(orgc.xhigh.prcp,data.frame(
+#		station_id=j,
+#		slope=b[2,1],
+#		std.err=b[2,2],
+#		t.value=b[2,3],
+#		p.value=b[2,4],
+#		r2=c$r.squared,
+#		r2.adj=c$adj.r.squared))}
 
-for(j in site){
-	a<-subset(data.one,data.one$station_id==j)
-	a<-na.omit(a[,c("orgc","n.prcp.xhigh")])
-if(nrow(a)==0) next
-if(nrow(a) < 3) next
-if(length(unique(a$n.prcp.xhigh)) < 2) next
-	model<-lm(orgc~n.prcp.xhigh,data=a)
-	b<-summary(model)$coefficients
-	c<-summary(model)
-if(!"n.prcp.xhigh" %in% rownames(b)) next
-	orgc.xhigh.prcp<-rbind(orgc.xhigh.prcp,data.frame(
-		station_id=j,
-		slope=b[2,1],
-		std.err=b[2,2],
-		t.value=b[2,3],
-		p.value=b[2,4],
-		r2=c$r.squared,
-		r2.adj=c$adj.r.squared))}
+#orgc.xhigh.prcp$sig<-ifelse(orgc.xhigh.prcp$r2<0.05,"yes","no")
 
-orgc.xhigh.prcp$sig<-ifelse(orgc.xhigh.prcp$r2<0.05,"yes","no")
-
-write.csv(orgc.xhigh.prcp,"/disks/home/abigail/thesis-repository/code/data/orgc.xhigh.prcp.csv")
+#write.csv(orgc.xhigh.prcp,"/disks/home/abigail/thesis-repository/code/data/orgc.xhigh.prcp.csv")
 
 #decade_orgc_n.prcp.xhigh<-data.frame(decade=character(),intercept=numeric(),n.xhigh.prcp=numeric(),p.value=numeric())
 
