@@ -4,14 +4,14 @@ library(data.table)
 library(lme4)
 library(car)
 
-data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.csv")
+#data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.csv")
 
-#data<-final
+data<-final
 
-data$continent<-as.factor(data$continent)
-data$country_name<-as.factor(data$country_name)
-data$region<-as.factor(data$region)
-data$station_id<-as.factor(data$station_id)
+#data$continent<-as.factor(data$continent)
+#data$country_name<-as.factor(data$country_name)
+#data$region<-as.factor(data$region)
+#data$station_id<-as.factor(data$station_id)
 
 data$soil.layer<-with(data,ifelse(upper_depth<=20,"one",
 	ifelse(upper_depth>=21&upper_depth<=40,"two",
@@ -35,28 +35,30 @@ data$soil.layer<-as.factor(data$soil.layer)
 
 #model.out$sig<-with(model.out,ifelse(pvalue<0.05,"yes","no"))
 
-data$decade<-with(data,ifelse(YEAR<=1983&YEAR>=1973,"seventies",
-     ifelse(YEAR>1983&YEAR<=1993,"eighties",
-   ifelse(YEAR>1993&YEAR<=2003,"ninties",
- ifelse(YEAR>2003&YEAR<=2013,"oughts",
-ifelse(YEAR>2013&YEAR<=2023,"tens","NA"))))))
+#data$decade<-with(data,ifelse(YEAR<=1983&YEAR>=1973,"seventies",
+ #  ifelse(YEAR>1983&YEAR<=1993,"eighties",
+#ifelse(YEAR>1993&YEAR<=2003,"ninties",
+#ifelse(YEAR>2003&YEAR<=2013,"oughts",
+#ifelse(YEAR>2013&YEAR<=2023,"tens","NA"))))))
 
-decade<-as.factor(data$decade)
+#decade<-as.factor(data$decade)
 
 data.one<-subset(data,data$soil.layer=="one")
-data.two<-subset(data,data$soil.layer=="two")
-data.three<-subset(data,data$soil.layer=="three")
-data.four<-subset(data,data$soil.layer=="four")
-data.five<-subset(data,data$soil.layer=="five")
-data.six<-subset(data,data$soil.layer=="six")
+#data.two<-subset(data,data$soil.layer=="two")
+#data.three<-subset(data,data$soil.layer=="three")
+#data.four<-subset(data,data$soil.layer=="four")
+#data.five<-subset(data,data$soil.layer=="five")
+#data.six<-subset(data,data$soil.layer=="six")
+
+data.one$station_id<-as.character(data.one$station_id)
 
 site<-unique(data.one$station_id)
 
-orgc_n.xhigh.prcp<-data.frame(station_id=character(),estimate=numeric(),std.err=numeric(),
+orgc.xhigh.prcp<-data.frame(station_id=character(),slope=numeric(),std.err=numeric(),
 	t.value=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
 
 for(j in site){
-	a<-data.one[which(data.one$station_id==j),]
+	a<-subset(data.one,data.one$station_id==j)
 	a<-na.omit(a[,c("orgc","n.prcp.xhigh")])
 if(nrow(a)==0) next
 if(nrow(a) < 3) next
@@ -65,14 +67,18 @@ if(length(unique(a$n.prcp.xhigh)) < 2) next
 	b<-summary(model)$coefficients
 	c<-summary(model)
 if(!"n.prcp.xhigh" %in% rownames(b)) next
-	orgc_n.xhigh.prcp<-rbind(orgc_n.xhigh.prcp,data.frame(
+	orgc.xhigh.prcp<-rbind(orgc.xhigh.prcp,data.frame(
 		station_id=j,
-		estimate=b[2,1],
+		slope=b[2,1],
 		std.err=b[2,2],
 		t.value=b[2,3],
 		p.value=b[2,4],
 		r2=c$r.squared,
 		r2.adj=c$adj.r.squared))}
+
+orgc.xhigh.prcp$sig<-ifelse(orgc.xhigh.prcp$r2<0.05,"yes","no")
+
+write.csv(orgc.xhigh.prcp,"/disks/home/abigail/thesis-repository/code/data/orgc.xhigh.prcp.csv")
 
 #decade_orgc_n.prcp.xhigh<-data.frame(decade=character(),intercept=numeric(),n.xhigh.prcp=numeric(),p.value=numeric())
 

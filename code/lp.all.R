@@ -20,7 +20,7 @@ setDT(lp_smu_latlon)
 
 soil<-c("tceq","orgm","orgc","totc","nitkjd","ecec","cfgr","cfvo","clay","silt","sand","phaq","phetol","wg1500","phpwsl","phptot","phprtn",
 	"phnf","phkc","phetm3","phetb1","phca","elcosp","elco50","elco25","elco20","cecph7","cecph8","bdwsod","bdfifm","bdfiad","bdfi33",
-	"wg0500","wg0200","wg0100","wg0033","wg0100","wv1500","wv0500","wv0033","wv0010")
+	"wg0500","wg0200","wg0100","wg0033","wg0010","wv1500","wv0500","wv0033","wv0010")
 
 soil<-as.vector(soil)
 
