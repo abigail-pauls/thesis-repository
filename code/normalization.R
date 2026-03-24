@@ -32,7 +32,7 @@ final$n.prcp.xhigh<-((final$prcp.xhigh-final$prcp.xhigh.u)/final$prcp.xhigh.sd)
 
 final$n.prcp.high<-((final$prcp.high-final$prcp.high.u)/final$prcp.xhigh.sd)
 
-final$n.tmax.avg<-((final$tmax.avg-final$tmax.avg)/final$tmax.sd)
+final$n.tmax.avg<-((final$tmax.avg-final$tmax.avg.u)/final$tmax.sd)
 
 final$n.tmax.xhigh<-((final$tmax.xhigh-final$tmax.xhigh.u)/final$tmax.xhigh.sd)
 
@@ -42,7 +42,7 @@ final$n.tmax.xlow<-((final$tmax.xlow-final$tmax.xlow.u)/final$tmax.xlow.sd)
 
 final$n.tmax.low<-((final$tmax.low-final$tmax.low.u)/final$tmax.low.sd)
 
-final$n.tmin.avg<-((final$tmin.avg-final$tmin.avg)/final$tmin.sd)
+final$n.tmin.avg<-((final$tmin.avg-final$tmin.avg.u)/final$tmin.sd)
 
 final$n.tmin.xhigh<-((final$tmin.xhigh-final$tmin.xhigh.u)/final$tmin.xhigh.sd)
 
