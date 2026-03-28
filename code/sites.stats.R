@@ -1,9 +1,9 @@
-library(data.table)
-library(tidyverse)
+#library(data.table)
+#library(tidyverse)
 
-data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.final.csv")
+#data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.final.csv")
 
-data[,c("X.2","X.1","X","HWSD2_SMU_ID","WRB2","cell_id","layer_id","organic_surface")]<-NULL
+#data[,c("X.2","X.1","X","HWSD2_SMU_ID","WRB2","cell_id","layer_id","organic_surface")]<-NULL
 
 #map<-read.csv("/disks/home/abigail/thesis-repository/code/data/map.csv")
 #avg.tmax<-read.csv("/disks/home/abigail/thesis-repository/code/data/avg.tmax.csv")
@@ -18,188 +18,162 @@ data[,c("X.2","X.1","X","HWSD2_SMU_ID","WRB2","cell_id","layer_id","organic_surf
 #avg.tmin<-avg.tmin[,c("station_id","avg.tmin")]
 #colnames(avg.tmin)<-c("station_id","total.avg.tmin")
 
-data$soil.layer<-with(data,ifelse(upper_depth<=20,"one",
-     ifelse(upper_depth>=21&upper_depth<=40,"two",
-  ifelse(upper_depth>=41&upper_depth<=60,"three",
- ifelse(upper_depth>=61&upper_depth<=80,"four",
-ifelse(upper_depth>=81&upper_depth<=100,"five","six"))))))
+#data$soil.layer<-with(data,ifelse(upper_depth<=20,"one",
+#	ifelse(upper_depth>=21&upper_depth<=40,"two",
+#	ifelse(upper_depth>=41&upper_depth<=60,"three",
+#	ifelse(upper_depth>=61&upper_depth<=80,"four",
+#	ifelse(upper_depth>=81&upper_depth<=100,"five","six"))))))
 
-data$soil.layer<-as.factor(data$soil.layer)
+#data$soil.layer<-as.factor(data$soil.layer)
 
-data.one<-subset(data,data$soil.layer=="one")
+#data.one<-subset(data,data$soil.layer=="one")
+
+#valid_var <- function(x) {
+#  x <- x[!is.na(x)]
+#  length(unique(x)) > 1
+#}
 
 #site<-unique(data.one$station_id)
-
-#climate<-c("n.prcp.xhigh","n.dry.days","n.prcp.event","n.tmax.xhigh","n.tmax.xlow","n.tmax.avg","n.tmin.xhigh","n.tmin.xlow","n.tmin.avg")
 
 #water<-c("wg1500","wg0200","wg0033")
 #water.sites<-list()
 
-#k<-1
-
 #for(i in water){
-#	a<-substr(i,1,4)
-#for(h in climate){
-#	e<-substr(h,3,8)
- #      df<-data.frame(
- #     water=character(),climate=character(),station_id=character(),slope=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
+#result<-data.frame(site=character(),climate=character(),estimate=numeric(),std.err=numeric(),
+#               t.value=numeric(),p.value=numeric())
 #for(j in site){
-   #   b<-data.one[data.one$station_id==j,c("station_id",i,h)]
-    #   colnames(b)<-c("station_id","x","y")
-     #  b$x<-as.numeric(b$x)
-      # b$y<-as.numeric(b$y)
-      # b<-b[is.finite(b$x)&is.finite(b$y),]
-#if(nrow(b)==0) next
-#if(nrow(b) < 3) next
- #       model<-lm(x~y,data=b)
-  #      c<-summary(model)$coefficients
-   #     d<-summary(model)
-#if(nrow(c)<2|nrow(b)==0|nrow(b)<3) next
- #       df<-rbind(df,data.frame(
-  #      water=i,climate=h,station_id=j,slope=c[2,1],p.value=c[2,4],r2=d$r.squared,r2.adj=d$adj.r.squared))}
-#df$sig<-ifelse(df$p.value<0.05,"yes","no")
-#water.sites[[k]]<-df
-#colnames(water.sites[[k]])<-c(paste0("id.",a,sep=".",e),paste0("clim.",a,sep=".",e),"station_id",paste0("sl.",a,sep=".",e),
-#                paste0("p.v.",a,sep=".",e),paste0("r2.",a,sep=".",e),paste0("r2.a.",a,sep=".",e),paste0("s.",a,sep=".",e))
-#k<-k+1
-#}}
+#        df<-data.one[data.one$station_id==j,c("station_id",i,"n.prcp.xhigh","n.prcp.xhigh.length","n.dry.days","n.dry.length",
+#                        "n.tmax.xhigh","n.tmax.xhigh.length","n.tmax.high","n.tmax.high.length")]
+#        colnames(df)<-c("station_id","metric","n.prcp.xhigh","n.prcp.xhigh.length","n.dry.days","n.dry.length",
+#                        "n.tmax.xhigh","n.tmax.xhigh.length","n.tmax.high","n.tmax.high.length")
+#        df<-df[!is.na(df$metric),]
+#if(nrow(df) < 3) next
+#	predictors <- names(df)[-c(1,2)]
+#	valid <- predictors[sapply(df[predictors], valid_var)]
+#if(length(valid) == 0) next
+#	formula_str <- paste("metric ~", paste(valid, collapse = "+"))
+#	model <- lm(as.formula(formula_str), data = df)
+#	coef<-as.data.frame(coef(summary(model)))
+#if(nrow(coef)==0) next
+#	result<-rbind(result,data.frame(site=rep(j,nrow(coef)),climate=rownames(coef),estimate=coef$Estimate,
+#		std.err=coef$`Std. Error`,t.value=coef$`t value`,p.value=coef$`Pr(>|t|)`))}
+#result$significant<-ifelse(result$p.value<0.05,"yes","no")
+#result<-result[result$climate!="(Intercept)",]
+#water.sites[[i]]<-result}
+#colnames(water.sites[[i]])<-c("station_id",paste0(i,sep=".","climate"),paste0(i,sep=".","estimate"),
+#		paste0(i,sep=".","std.err"),paste0(i,sep=".","t.value"),paste0(i,sep=".","p.value"),paste0(i,sep=".","sig"))
 
 
 #carbon<-c("orgc","totc","tceq")
-
 #carbon.sites<-list()
 
-#k<-1
-
 #for(i in carbon){
-#for(h in climate){
-#	df<-data.frame(
- #      carbon=character(),climate=character(),station_id=character(),slope=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
+#result<-data.frame(site=character(),climate=character(),estimate=numeric(),std.err=numeric(),
+#               t.value=numeric(),p.value=numeric())
 #for(j in site){
- #     b<-data.one[data.one$station_id==j,c("station_id",i,h)]
-  #   colnames(b)<-c("station_id","x","y")
-   # b$x<-as.numeric(b$x)
-   #b$y<-as.numeric(b$y)
-  #b<-b[is.finite(b$x)&is.finite(b$y),]
-#if(nrow(b)==0) next
-#if(nrow(b) < 3) next
-#	model<-lm(x~y,data=b)
-#	c<-summary(model)$coefficients
-#	d<-summary(model)
-#if(nrow(c)<2|nrow(b)==0|nrow(b)<3) next
-#	df<-rbind(df,data.frame(
-#	carbon=i,climate=h,station_id=j,slope=c[2,1],p.value=c[2,4],r2=d$r.squared,r2.adj=d$adj.r.squared))}
-#df$sig<-ifelse(df$p.value<0.05,"yes","no")
-#carbon.sites[[k]]<-df
-#colnames(carbon.sites[[k]])<-c(paste0("carbon.",i,sep=".",h),paste0("climate.",i,sep=".",h),"station_id",paste0("slope.",i,sep=".",h),
-#		paste0("p.value.",i,sep=".",h),paste0("r2.",i,sep=".",h),paste0("r2.adj.",i,sep=".",h),paste0("sig.",i,sep=".",h))
-#k<-k+1
-#}}
+#        df<-data.one[data.one$station_id==j,c("station_id",i,"n.dry.days","n.tmax.xhigh","n.tmax.xhigh.length","n.tmax.high",
+#		"n.tmin.high","n.tmin.high.length","n.tmin.xhigh","n.tmin.xhigh.length","n.tmin.xlow","n.tmin.low","n.tmin.avg")]
+#        colnames(df)<-c("station_id","metric","n.dry.days","n.tmax.xhigh","n.tmax.xhigh.length","n.tmax.high",
+#                "n.tmin.high","n.tmin.high.length","n.tmin.xhigh","n.tmin.xhigh.length","n.tmin.xlow","n.tmin.low","n.tmin.avg")
+#        df<-df[!is.na(df$metric),]
+#if(nrow(df) < 3) next
+#        predictors <- names(df)[-c(1,2)]
+#        valid <- predictors[sapply(df[predictors], valid_var)]
+#if(length(valid) == 0) next
+#        formula_str <- paste("metric ~", paste(valid, collapse = "+"))
+#        model <- lm(as.formula(formula_str), data = df)
+#        coef<-as.data.frame(coef(summary(model)))
+#if(nrow(coef)==0) next
+#        result<-rbind(result,data.frame(site=rep(j,nrow(coef)),climate=rownames(coef),estimate=coef$Estimate,
+#                std.err=coef$`Std. Error`,t.value=coef$`t value`,p.value=coef$`Pr(>|t|)`))}
+#result$significant<-ifelse(result$p.value<0.05,"yes","no")
+#result<-result[result$climate!="(Intercept)",]
+#carbon.sites[[i]]<-result
+#colnames(carbon.sites[[i]])<-c("station_id",paste0(i,sep=".","climate"),paste0(i,sep=".","estimate"),
+#                paste0(i,sep=".","std.err"),paste0(i,sep=".","t.value"),paste0(i,sep=".","p.value"),paste0(i,sep=".","sig"))}
 
 #nutrient<-c("nitkjd","phetol","phetb1")
-
 #nutrient.sites<-list()
 
-#k<-1
-
 #for(i in nutrient){
-#for(h in climate){
- #       df<-data.frame(
-  #      nutrient=character(),climate=character(),station_id=character(),slope=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
+#result<-data.frame(site=character(),climate=character(),estimate=numeric(),std.err=numeric(),
+#               t.value=numeric(),p.value=numeric())
 #for(j in site){
- #      b<-data.one[data.one$station_id==j,c("station_id",i,h)]
-  #     colnames(b)<-c("station_id","x","y")
-   #    b$x<-as.numeric(b$x)
-    #   b$y<-as.numeric(b$y)
-     #  b<-b[is.finite(b$x)&is.finite(b$y),]
-#if(nrow(b)==0) next
-#if(nrow(b) < 3) next
-#        model<-lm(x~y,data=b)
-#        c<-summary(model)$coefficients
-#        d<-summary(model)
-#if(nrow(c)<2|nrow(b)==0|nrow(b)<3) next
- #       df<-rbind(df,data.frame(
-  #      nutrient=i,climate=h,station_id=j,slope=c[2,1],p.value=c[2,4],r2=d$r.squared,r2.adj=d$adj.r.squared))}
-#df$sig<-ifelse(df$p.value<0.05,"yes","no")
-#nutrient.sites[[k]]<-df
-#colnames(nutrient.sites[[k]])<-c(paste0("nutrient.",i,sep=".",h),paste0("climate.",i,sep=".",h),"station_id",paste0("slope.",i,sep=".",h),
-#                paste0("p.value.",i,sep=".",h),paste0("r2.",i,sep=".",h),paste0("r2.adj.",i,sep=".",h),paste0("sig.",i,sep=".",h))
-#k<-k+1
-#}}
+#        df<-data.one[data.one$station_id==j,c("station_id",i,"n.dry.days","n.prcp.event","n.prcp.mean","n.tmax.xhigh","n.tmax.xhigh.length",
+#                "n.tmax.xlow","n.tmax.xlow.length","n.tmax.avg","n.tmin.xhigh","n.tmin.xhigh.length","n.tmin.xlow","n.tmin.low","n.tmin.avg")]
+#        colnames(df)<-c("station_id","metric","n.dry.days","n.prcp.event","n.prcp.mean","n.tmax.xhigh","n.tmax.xhigh.length",
+#                "n.tmax.xlow","n.tmax.xlow.length","n.tmax.avg","n.tmin.xhigh","n.tmin.xhigh.length","n.tmin.xlow","n.tmin.low","n.tmin.avg")
+#        df<-df[!is.na(df$metric),]
+#if(nrow(df) < 3) next
+#        predictors <- names(df)[-c(1,2)]
+#        valid <- predictors[sapply(df[predictors], valid_var)]
+#if(length(valid) == 0) next
+#        formula_str <- paste("metric ~", paste(valid, collapse = "+"))
+#        model <- lm(as.formula(formula_str), data = df)
+#        coef<-as.data.frame(coef(summary(model)))
+#if(nrow(coef)==0) next
+#        result<-rbind(result,data.frame(site=rep(j,nrow(coef)),climate=rownames(coef),estimate=coef$Estimate,
+#                std.err=coef$`Std. Error`,t.value=coef$`t value`,p.value=coef$`Pr(>|t|)`))}
+#result$significant<-ifelse(result$p.value<0.05,"yes","no")
+#result<-result[result$climate!="(Intercept)",]
+#nutrient.sites[[i]]<-result
+#colnames(nutrient.sites[[i]])<-c("station_id",paste0(i,sep=".","climate"),paste0(i,sep=".","estimate"),
+#                paste0(i,sep=".","std.err"),paste0(i,sep=".","t.value"),paste0(i,sep=".","p.value"),paste0(i,sep=".","sig"))}
 
-#texture<-c("clay","silt","sand","ecec")
 
+#texture<-c("clay","silt","sand","ecec","cecph7","elco50")
 #texture.sites<-list()
 
-#k<-1
-
 #for(i in texture){
-#for(h in climate){
-#        df<-data.frame(
- #       texture=character(),climate=character(),station_id=character(),slope=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
+#result<-data.frame(site=character(),climate=character(),estimate=numeric(),std.err=numeric(),
+#               t.value=numeric(),p.value=numeric())
 #for(j in site){
-#       b<-data.one[data.one$station_id==j,c("station_id",i,h)]
-#       colnames(b)<-c("station_id","x","y")
-#       b$x<-as.numeric(b$x)
-#       b$y<-as.numeric(b$y)
-#       b<-b[is.finite(b$x)&is.finite(b$y),]
-#if(nrow(b)==0) next
-#if(nrow(b) < 3) next
-#        model<-lm(x~y,data=b)
-#        c<-summary(model)$coefficients
-#        d<-summary(model)
-#if(nrow(c)<2|nrow(b)==0|nrow(b)<3) next
-#        df<-rbind(df,data.frame(
-#        texture=i,climate=h,station_id=j,slope=c[2,1],p.value=c[2,4],r2=d$r.squared,r2.adj=d$adj.r.squared))}
-#df$sig<-ifelse(df$p.value<0.05,"yes","no")
-#texture.sites[[k]]<-df
-#colnames(texture.sites[[k]])<-c(paste0("texture.",i,sep=".",h),paste0("climate.",i,sep=".",h),"station_id",paste0("slope.",i,sep=".",h),
-#                paste0("p.value.",i,sep=".",h),paste0("r2.",i,sep=".",h),paste0("r2.adj.",i,sep=".",h),paste0("sig.",i,sep=".",h))
-#k<-k+1
-#}}
+#        df<-data.one[data.one$station_id==j,c("station_id",i,"n.prcp.xhigh","n.prcp.xhigh.length","n.prcp.high","n.dry.days","n.dry.length",#
+#		"n.prcp.event","n.tmax.xhigh","n.tmax.xlow","n.tmax.xlow.length","n.tmax.low","n.tmin.xhigh","n.tmin.xhigh.length",
+#		"n.tmin.high","n.tmin.high.length","n.tmin.xlow")]
+#        colnames(df)<-c("station_id","metric","n.prcp.xhigh","n.prcp.xhigh.length","n.prcp.high","n.dry.days","n.dry.length",
+#                "n.prcp.event","n.tmax.xhigh","n.tmax.xlow","n.tmax.xlow.length","n.tmax.low","n.tmin.xhigh","n.tmin.xhigh.length",
+#                "n.tmin.high","n.tmin.high.length","n.tmin.xlow")
+#        df<-df[!is.na(df$metric),]
+#if(nrow(df) < 3) next
+#        predictors <- names(df)[-c(1,2)]
+#        valid <- predictors[sapply(df[predictors], valid_var)]
+#if(length(valid) == 0) next
+#        formula_str <- paste("metric ~", paste(valid, collapse = "+"))
+#        model <- lm(as.formula(formula_str), data = df)
+#        coef<-as.data.frame(coef(summary(model)))
+#if(nrow(coef)==0) next
+#        result<-rbind(result,data.frame(site=rep(j,nrow(coef)),climate=rownames(coef),estimate=coef$Estimate,
+#                std.err=coef$`Std. Error`,t.value=coef$`t value`,p.value=coef$`Pr(>|t|)`))}
+#result$significant<-ifelse(result$p.value<0.05,"yes","no")
+#result<-result[result$climate!="(Intercept)",]
+#texture.sites[[i]]<-result
+#colnames(texture.sites[[i]])<-c("station_id",paste0(i,sep=".","climate"),paste0(i,sep=".","estimate"),
+#                paste0(i,sep=".","std.err"),paste0(i,sep=".","t.value"),paste0(i,sep=".","p.value"),paste0(i,sep=".","sig"))}
 
-##for(g in 1:27){
-#       data<-merge(data,water.sites[[g]],all.x=TRUE)
-#       data<-merge(data,carbon.sites[[g]],all.x=TRUE)
-#       data<-merge(data,nutrient.sites[[g]],all.x=TRUE)}
+for(g in 1:3){
+	df1<-water.sites[[g]]
+	df1<-df1[,c(1:3)]
+	data<-merge(data,df1,all.x=TRUE)}
+#	df2<-carbon.sites[[g]]
+#	df2<-df2[,c(1:3)]
+#	data<-merge(data,df2,all.x=TRUE)
+#	df3<-nutrient.sites[[g]]
+#	df3<-df3[,c(1:3)]
+#	data<-merge(data,df3,all.x=TRUE)}
 
-#for(v in 1:36){
-#	data<-merge(data,texture.sites[[v]],all.x=TRUE)}
+#for(v in 1:6){
+#	df4<-texture.sites[[v]]
+#	df4<-df4[,c(1:3)]
+#	data<-merge(data,df4,all.x=TRUE)}
 
-#data.1<-data %>% filter(station_id %in% site)
+#data<-data %>% filter(station_id %in% site)
 
-#write.csv(data.1,"/disks/home/abigail/thesis-repository/code/data/data.stats.csv")
+#data<-merge(data,map,all.x=TRUE)
+#data<-merge(data,avg.tmax,all.x=TRUE)
+#data<-merge(data,avg.tmin,all.x=TRUE)
 
-#data.1<-data
+#write.csv(data,"/disks/home/abigail/thesis-repsitory/code/data/data.stats.csv")
 
-#data.1<-merge(data.1,map,all.x=TRUE)
-#data.1<-merge(data.1,avg.tmax,all.x=TRUE)
-#data.1<-merge(data.1,avg.tmin,all.x=TRUE)
-
-#data.2<-merge(data.1,biomes,all.x=TRUE)
-
-#slope<-c("slope.wg1500.n.prcp.xhigh","slope.wg1500.n.dry.days","slope.wg1500.n.prcp.event","slope.wg1500.n.tmax.xhigh",
-#	"slope.wg1500.n.tmin.xhigh","slope.wg1500.n.tmax.xlow","slope.wg1500.n.tmin.xlow","slope.wg1500.n.tmax.avg","slope.wg1500.n.tmin.avg",
-#	"slope.wg0200.n.prcp.xhigh","slope.wg0200.n.dry.days","slope.wg0200.n.prcp.event","slope.wg0200.n.tmax.xhigh",
- #      "slope.wg0200.n.tmin.xhigh","slope.wg0200.n.tmax.xlow","slope.wg0200.n.tmin.xlow","slope.wg0200.n.tmax.avg","slope.wg0200.n.tmin.avg",
-#"slope.wg0033.n.prcp.xhigh","slope.wg0033.n.dry.days","slope.wg0033.n.prcp.event","slope.wg0033.n.tmax.xhigh",
- #      "slope.wg0033.n.tmin.xhigh","slope.wg0033.n.tmax.xlow","slope.wg0033.n.tmin.xlow","slope.wg0033.n.tmax.avg","slope.wg0033.n.tmin.avg")
-
-#property<-c("map","total.avg.tmax","total.avg.tmin","clay","sand","silt","ecec","bdwsod","tceq","orgc","cfgr","cfvo")
-
-#water.slope<-data.frame(
- #      slope=character(),property=character(),slope.2=numeric(),p.value=numeric(),r2=numeric(),r2.adj=numeric())
-
-#for(rr in slope){
-#for(ww in property){
-#	b<-data.1[,c(rr,ww)]
-#	colnames(b)<-c("x","y")
-#if(nrow(b)<3) next
-#	model<-lm(x~y,data=b)
-#	sum<-summary(model)
-#	coef<-summary(model)$coefficients
-#if(nrow(coef)<2) next
-#	water.slope<-rbind(water.slope,data.frame(slope=rr,property=ww,slope.2=coef[2,1],p.value=coef[2,4],r2=sum$r.squared,r2.adj=sum$adj.r.squared))}}	
-
-#water.slope$sig<-ifelse(water.slope$p.value<0.05,"yes","no")
+#data<-merge(data,biomes,all.x=TRUE)
 
