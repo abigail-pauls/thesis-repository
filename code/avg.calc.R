@@ -57,19 +57,19 @@ clim.3<-map(clim.2, ~.x %>%
 clim.4 <- lapply(clim.3, function(dt)
 	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
 
-clim.5<-rbindlist(lapply(names(clim.4),function(h){
-	dt<-clim.4[[h]]
-	data.table(
-		station_id = basename(h),
-		n_rows = nrow(dt),
-		min.date=min(dt$DATE, na.rm = TRUE),
-		max.date=max(dt$DATE, na.rm = TRUE),
-		data.miss.precip = (sum(is.na(dt$PRCP)))/(nrow(dt)),
-		data.miss.tmax = (sum(is.na(dt$TMAX)))/(nrow(dt)),
-		data.miss.tmin = (sum(is.na(dt$TMIN)))/(nrow(dt)),
-		data.miss.tavg = (sum(is.na(dt$TAVG)))/(nrow(dt)))}),fill=TRUE)
+#clim.5<-rbindlist(lapply(names(clim.4),function(h){
+#	dt<-clim.4[[h]]
+#	data.table(
+#		station_id = basename(h),
+#		n_rows = nrow(dt),
+#		min.date=min(dt$DATE, na.rm = TRUE),
+#		max.date=max(dt$DATE, na.rm = TRUE),
+#		data.miss.precip = (sum(is.na(dt$PRCP)))/(nrow(dt)),
+#		data.miss.tmax = (sum(is.na(dt$TMAX)))/(nrow(dt)),
+#		data.miss.tmin = (sum(is.na(dt$TMIN)))/(nrow(dt)),
+#		data.miss.tavg = (sum(is.na(dt$TAVG)))/(nrow(dt)))}),fill=TRUE)
 
-write.csv(clim.5,"/disks/home/abigail/thesis-repository/code/data/clim.5.csv")
+#write.csv(clim.5,"/disks/home/abigail/thesis-repository/code/data/clim.5.csv")
 
 clim.5<-read.csv("/disks/home/abigail/thesis-repository/code/data/clim.5.csv")
 
@@ -95,99 +95,99 @@ map.1<-rbindlist(lapply(names(map),function(c){
 	station_id = basename(c),
 	map = with(x,aggregate(PRCP~STATION,data=x,mean,na.rm=TRUE)))}))
 
-prcp<-rbindlist(prcp.2.1,idcol="station_id",fill=TRUE)
+#prcp<-rbindlist(prcp.2.1,idcol="station_id",fill=TRUE)
 
 #prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/prcp.csv")
 
-limits.prcp<-prcp[,.(
-	xhigh.prcp = quantile(PRCP,c(.95),na.rm=TRUE),
-	high.prcp = quantile(PRCP,c(.75),na.rm=TRUE),
-	low.prcp = quantile(PRCP,c(.25),na.rm=TRUE),
-	xlow.prcp = quantile(PRCP,c(.05),na.rm=TRUE)),
-	by = station_id]
+#limits.prcp<-prcp[,.(
+#	xhigh.prcp = quantile(PRCP,c(.95),na.rm=TRUE),
+#	high.prcp = quantile(PRCP,c(.75),na.rm=TRUE),
+#	low.prcp = quantile(PRCP,c(.25),na.rm=TRUE),
+#	xlow.prcp = quantile(PRCP,c(.05),na.rm=TRUE)),
+#	by = station_id]
 
-write.csv(limits.prcp,"/disks/home/abigail/thesis-repository/code/data/limits.prcp.csv")
+#write.csv(limits.prcp,"/disks/home/abigail/thesis-repository/code/data/limits.prcp.csv")
 
-prcp<-limits.prcp[prcp,on = "station_id"]
+#prcp<-limits.prcp[prcp,on = "station_id"]
 
-norm.prcp<-prcp[,{
-	xhigh<-norm(PRCP>=xhigh.prcp)
-	high<-norm(PRCP>=high.prcp)
-	low<-norm(PRCP<=low.prcp)
-	xlow<-norm(PRCP<=xlow.prcp)
-	dry<-norm(PRCP==0)
-.(
-	prcp.xhigh.length.u = xhigh$mean,
-	prcp.xhigh.length.sd = xhigh$sd,
-	prcp.high.length.u = high$mean,
-	prcp.high.length.sd = high$sd,
-	prcp.xlow.length.u = xlow$mean,
-	prcp.xlow.length.sd = xlow$sd,
-	prcp.low.length.u = low$mean,
-	prcp.low.length.sd = low$sd,
-	dry.days.length.u = dry$mean,
-	dry.days.length.sd = dry$sd)},
-by=station_id]
+#norm.prcp<-prcp[,{
+#	xhigh<-norm(PRCP>=xhigh.prcp)
+#	high<-norm(PRCP>=high.prcp)
+#	low<-norm(PRCP<=low.prcp)
+#	xlow<-norm(PRCP<=xlow.prcp)
+#	dry<-norm(PRCP==0)
+#.(
+#	prcp.xhigh.length.u = xhigh$mean,
+#	prcp.xhigh.length.sd = xhigh$sd,
+#	prcp.high.length.u = high$mean,
+#	prcp.high.length.sd = high$sd,
+#	prcp.xlow.length.u = xlow$mean,
+#	prcp.xlow.length.sd = xlow$sd,
+#	prcp.low.length.u = low$mean,
+#	prcp.low.length.sd = low$sd,
+#	dry.days.length.u = dry$mean,
+#	dry.days.length.sd = dry$sd)},
+#by=station_id]
 
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xhigh.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xhigh.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.high.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.high.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xlow.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xlow.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.low.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.low.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.event.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.event.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(dry.days.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(dry.days.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.avg.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.avg.sd = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.mean.u = NA_real_)
-norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.mean.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xhigh.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xhigh.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.high.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.high.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xlow.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.xlow.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.low.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.low.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.event.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.event.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(dry.days.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(dry.days.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.avg.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.avg.sd = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.mean.u = NA_real_)
+#norm.prcp <- norm.prcp %>% dplyr::mutate(prcp.mean.sd = NA_real_)
 
-for(h in names(prcp.2.1)){
-	z<-prcp.2.1[[h]]
-		xhigh<-limits.prcp[station_id==h,xhigh.prcp]
-		high<-limits.prcp[station_id==h,high.prcp]
-		low<-limits.prcp[station_id==h,low.prcp]
-		xlow<-limits.prcp[station_id==h,xlow.prcp]
-q<-subset(z,z$PRCP>=xhigh)
-if(nrow(q)>0){
-	w<-q %>% group_by(YEAR) %>% tally()
-	norm.prcp[station_id==h, prcp.xhigh.u := mean(w$n,na.rm=TRUE)]
-	norm.prcp[station_id==h, prcp.xhigh.sd := sd(w$n,na.rm=TRUE)]}
-j<-subset(z,z$PRCP>=high)
-if(nrow(j)>0){
-	r<-j %>% group_by(YEAR) %>% tally()
-	norm.prcp[station_id==h,prcp.high.u := mean(r$n,na.rm=TRUE)]
-	norm.prcp[station_id==h,prcp.high.sd := sd(r$n,na.rm=TRUE)]}
-k<-subset(z,z$PRCP<=xlow)
-if(nrow(k)>0){
-	p<-k %>% group_by(YEAR) %>% tally()
-	norm.prcp[station_id==h,prcp.xlow.u := mean(p$n,na.rm=TRUE)]
-	norm.prcp[station_id==h,prcp.xlow.sd := sd(p$n,na.rm=TRUE)]}
-m<-subset(z,z$PRCP<=low)
-if(nrow(m)>0){
-	n<-m %>% group_by(YEAR) %>% tally()
-	norm.prcp[station_id==h,prcp.low.u:=mean(n$n,na.rm=TRUE)]
-	norm.prcp[station_id==h,prcp.low.sd:=sd(n$n,na.rm=TRUE)]}
-a<-subset(z,z$PRCP!=0)
-if(nrow(a)>0){
-	c<-a %>% group_by(YEAR) %>% tally()
-	norm.prcp[station_id==h,prcp.event.u := mean(c$n,na.rm=TRUE)]
-	norm.prcp[station_id==h,prcp.event.sd := sd(c$n,na.rm=TRUE)]}
-b<-subset(z,z$PRCP==0)
-if(nrow(b)>0){
-	d<-b %>% group_by(YEAR) %>% tally()
-	norm.prcp[station_id==h,dry.days.u := mean(d$n,na.rm=TRUE)]
-	norm.prcp[station_id==h,dry.days.sd := sd(d$n,na.rm=TRUE)]}
-norm.prcp[station_id==h,prcp.avg.u := mean(z$PRCP, na.rm=TRUE)]
-norm.prcp[station_id==h,prcp.avg.sd := sd(z$PRCP, na.rm=TRUE)]
-t<-subset(z,z$PRCP!=0)
-if(nrow(t)>0){
-	norm.prcp[station_id==h, prcp.mean.u := mean(t$PRCP,na.rm=TRUE)]
-	norm.prcp[station_id==h, prcp.mean.sd := sd(t$PRCP,na.rm=TRUE)]}}
+#for(h in names(prcp.2.1)){
+#	z<-prcp.2.1[[h]]
+#		xhigh<-limits.prcp[station_id==h,xhigh.prcp]
+#		high<-limits.prcp[station_id==h,high.prcp]
+#		low<-limits.prcp[station_id==h,low.prcp]
+#		xlow<-limits.prcp[station_id==h,xlow.prcp]
+#q<-subset(z,z$PRCP>=xhigh)
+#if(nrow(q)>0){
+#	w<-q %>% group_by(YEAR) %>% tally()
+#	norm.prcp[station_id==h, prcp.xhigh.u := mean(w$n,na.rm=TRUE)]
+#	norm.prcp[station_id==h, prcp.xhigh.sd := sd(w$n,na.rm=TRUE)]}
+#j<-subset(z,z$PRCP>=high)
+#if(nrow(j)>0){
+#	r<-j %>% group_by(YEAR) %>% tally()
+#	norm.prcp[station_id==h,prcp.high.u := mean(r$n,na.rm=TRUE)]
+#	norm.prcp[station_id==h,prcp.high.sd := sd(r$n,na.rm=TRUE)]}
+#k<-subset(z,z$PRCP<=xlow)
+#if(nrow(k)>0){
+#	p<-k %>% group_by(YEAR) %>% tally()
+#	norm.prcp[station_id==h,prcp.xlow.u := mean(p$n,na.rm=TRUE)]
+#	norm.prcp[station_id==h,prcp.xlow.sd := sd(p$n,na.rm=TRUE)]}
+#m<-subset(z,z$PRCP<=low)
+#if(nrow(m)>0){
+#	n<-m %>% group_by(YEAR) %>% tally()
+#	norm.prcp[station_id==h,prcp.low.u:=mean(n$n,na.rm=TRUE)]
+#	norm.prcp[station_id==h,prcp.low.sd:=sd(n$n,na.rm=TRUE)]}
+#a<-subset(z,z$PRCP!=0)
+#if(nrow(a)>0){
+#	c<-a %>% group_by(YEAR) %>% tally()
+#	norm.prcp[station_id==h,prcp.event.u := mean(c$n,na.rm=TRUE)]
+#	norm.prcp[station_id==h,prcp.event.sd := sd(c$n,na.rm=TRUE)]}
+#b<-subset(z,z$PRCP==0)
+#if(nrow(b)>0){
+#	d<-b %>% group_by(YEAR) %>% tally()
+#	norm.prcp[station_id==h,dry.days.u := mean(d$n,na.rm=TRUE)]
+#	norm.prcp[station_id==h,dry.days.sd := sd(d$n,na.rm=TRUE)]}
+#norm.prcp[station_id==h,prcp.avg.u := mean(z$PRCP, na.rm=TRUE)]
+#norm.prcp[station_id==h,prcp.avg.sd := sd(z$PRCP, na.rm=TRUE)]
+#t<-subset(z,z$PRCP!=0)
+#if(nrow(t)>0){
+#	norm.prcp[station_id==h, prcp.mean.u := mean(t$PRCP,na.rm=TRUE)]
+#	norm.prcp[station_id==h, prcp.mean.sd := sd(t$PRCP,na.rm=TRUE)]}}
 
 tmax.0<-clim.5[,c(2:3,7)]
 tmax.1<-subset(tmax.0,tmax.0$data.miss.tmax<=0.1)
@@ -215,72 +215,72 @@ avg.tmax<-rbindlist(lapply(names(tmax.2.3),function(e){
 	station_id = basename(e),
 	avg.tmax = mean(x$TMAX,na.rm=TRUE))}))
 
-tmax<-rbindlist(tmax.2.3,idcol="station_id",fill=TRUE)
+#tmax<-rbindlist(tmax.2.3,idcol="station_id",fill=TRUE)
 
-limits.tmax<-tmax[,.(
-	mean.tmax = mean(TMAX, na.rm=TRUE),
-	sd.tmax = sd(TMAX,na.rm=TRUE),
-	xhigh.tmax = quantile(TMAX,c(.95),na.rm=TRUE),
-	high.tmax = quantile(TMAX,c(.75),na.rm=TRUE),
-	low.tmax = quantile(TMAX,c(.25),na.rm=TRUE),
-	xlow.tmax = quantile(TMAX,c(.05),na.rm=TRUE)),
-	by = station_id]
+#limits.tmax<-tmax[,.(
+#	mean.tmax = mean(TMAX, na.rm=TRUE),
+#	sd.tmax = sd(TMAX,na.rm=TRUE),
+#	xhigh.tmax = quantile(TMAX,c(.95),na.rm=TRUE),
+#	high.tmax = quantile(TMAX,c(.75),na.rm=TRUE),
+#	low.tmax = quantile(TMAX,c(.25),na.rm=TRUE),
+#	xlow.tmax = quantile(TMAX,c(.05),na.rm=TRUE)),
+#	by = station_id]
 
-tmax<-limits.tmax[tmax,on = "station_id"]
+#tmax<-limits.tmax[tmax,on = "station_id"]
 
-norm.tmax<-tmax[,{
-	xhigh<-norm(TMAX>=xhigh.tmax)
-	high<-norm(TMAX>=high.tmax)
-	low<-norm(TMAX<=low.tmax)
-	xlow<-norm(TMAX<=xlow.tmax)
-.(
-	tmax.avg = mean(TMAX,na.rm=TRUE),
-	tmax.sd = sd(TMAX,na.rm=TRUE),
-	tmax.xhigh.length.u = xhigh$mean,
-	tmax.xhigh.length.sd = xhigh$sd,
-	tmax.high.length.u = high$mean,
-	tmax.high.length.sd = high$sd,
-	tmax.xlow.length.u = xlow$mean,
-	tmax.xlow.length.sd = xlow$sd,
-	tmax.low.length.u = low$mean,
-	tmax.low.length.sd = low$sd)},
-by=station_id]
+#norm.tmax<-tmax[,{
+#	xhigh<-norm(TMAX>=xhigh.tmax)
+#	high<-norm(TMAX>=high.tmax)
+#	low<-norm(TMAX<=low.tmax)
+#	xlow<-norm(TMAX<=xlow.tmax)
+#.(
+#	tmax.avg = mean(TMAX,na.rm=TRUE),
+#	tmax.sd = sd(TMAX,na.rm=TRUE),
+#	tmax.xhigh.length.u = xhigh$mean,
+#	tmax.xhigh.length.sd = xhigh$sd,
+#	tmax.high.length.u = high$mean,
+#	tmax.high.length.sd = high$sd,
+#	tmax.xlow.length.u = xlow$mean,
+#	tmax.xlow.length.sd = xlow$sd,
+#	tmax.low.length.u = low$mean,
+#	tmax.low.length.sd = low$sd)},
+#by=station_id]
 
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xhigh.u = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xhigh.sd = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.high.u = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.high.sd = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xlow.u = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xlow.sd = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.low.u = NA_real_)
-norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.low.sd = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xhigh.u = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xhigh.sd = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.high.u = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.high.sd = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xlow.u = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.xlow.sd = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.low.u = NA_real_)
+#norm.tmax <- norm.tmax %>% dplyr::mutate(tmax.low.sd = NA_real_)
 
-for(h in names(tmax.2.3)){
-	z<-tmax.2.3[[h]]
-		xhigh<-limits.tmax[station_id==h,xhigh.tmax]
-		high<-limits.tmax[station_id==h,high.tmax]
-		low<-limits.tmax[station_id==h,low.tmax]
-		xlow<-limits.tmax[station_id==h,xlow.tmax]
-	q<-subset(z,z$TMAX>=xhigh)
-if(nrow(q)>0){ 
-	w<-q %>% group_by(YEAR) %>% tally()
-	norm.tmax[station_id==h, tmax.xhigh.u := mean(w$n,na.rm=TRUE)]
-	norm.tmax[station_id==h, tmax.xhigh.sd := sd(w$n,na.rm=TRUE)]}
-	j<-subset(z,z$TMAX>=high)
-if(nrow(j)>0){
-	u<-j %>% group_by(YEAR) %>% tally()
-	norm.tmax[station_id==h,tmax.high.u := mean(u$n,na.rm=TRUE)]
-	norm.tmax[station_id==h,tmax.high.sd := sd(u$n,na.rm=TRUE)]}
-	k<-subset(z,z$TMAX<=xlow)
-if(nrow(k)>0){
-	v<-k %>% group_by(YEAR) %>% tally()
-	norm.tmax[station_id==h,tmax.xlow.u := mean(v$n,na.rm=TRUE)]
-	norm.tmax[station_id==h,tmax.xlow.sd := sd(v$n,na.rm=TRUE)]}
-	m<-subset(z,z$TMAX<=low)
-if(nrow(m)>0){
-	n<-m %>% group_by(YEAR) %>% tally()
-	norm.tmax[station_id==h,tmax.low.u:=mean(n$n,na.rm=TRUE)]
-	norm.tmax[station_id==h,tmax.low.sd:=sd(n$n,na.rm=TRUE)]}}
+#for(h in names(tmax.2.3)){
+#	z<-tmax.2.3[[h]]
+#		xhigh<-limits.tmax[station_id==h,xhigh.tmax]
+#		high<-limits.tmax[station_id==h,high.tmax]
+#		low<-limits.tmax[station_id==h,low.tmax]
+#		xlow<-limits.tmax[station_id==h,xlow.tmax]
+#	q<-subset(z,z$TMAX>=xhigh)
+#if(nrow(q)>0){ 
+#	w<-q %>% group_by(YEAR) %>% tally()
+#	norm.tmax[station_id==h, tmax.xhigh.u := mean(w$n,na.rm=TRUE)]
+#	norm.tmax[station_id==h, tmax.xhigh.sd := sd(w$n,na.rm=TRUE)]}
+#	j<-subset(z,z$TMAX>=high)
+#if(nrow(j)>0){
+#	u<-j %>% group_by(YEAR) %>% tally()
+#	norm.tmax[station_id==h,tmax.high.u := mean(u$n,na.rm=TRUE)]
+#	norm.tmax[station_id==h,tmax.high.sd := sd(u$n,na.rm=TRUE)]}
+#	k<-subset(z,z$TMAX<=xlow)
+#if(nrow(k)>0){
+#	v<-k %>% group_by(YEAR) %>% tally()
+#	norm.tmax[station_id==h,tmax.xlow.u := mean(v$n,na.rm=TRUE)]
+#	norm.tmax[station_id==h,tmax.xlow.sd := sd(v$n,na.rm=TRUE)]}
+#	m<-subset(z,z$TMAX<=low)
+#if(nrow(m)>0){
+#	n<-m %>% group_by(YEAR) %>% tally()
+#	norm.tmax[station_id==h,tmax.low.u:=mean(n$n,na.rm=TRUE)]
+#	norm.tmax[station_id==h,tmax.low.sd:=sd(n$n,na.rm=TRUE)]}}
 
 tmin.0<-clim.5[,c(2:3,8)]
 tmin.1<-subset(tmin.0,tmin.0$data.miss.tmin<=0.1)
@@ -307,76 +307,80 @@ avg.tmin<-rbindlist(lapply(names(tmin.2.3),function(w){
 	station_id = basename(w),
 	avg.tmin = mean(x$TMIN,na.rm=TRUE))}))
 
-tmin<-rbindlist(tmin.2.3,idcol="station_id",fill=TRUE)
+#tmin<-rbindlist(tmin.2.3,idcol="station_id",fill=TRUE)
 
-limits.tmin<-tmin[,.(
-	mean.tmin = mean(TMIN, na.rm=TRUE),
-	sd.tmin = sd(TMIN,na.rm=TRUE),
-	xhigh.tmin = quantile(TMIN,c(.95),na.rm=TRUE),
-	high.tmin = quantile(TMIN,c(.75),na.rm=TRUE),
-	low.tmin = quantile(TMIN,c(.25),na.rm=TRUE),
-	xlow.tmin = quantile(TMIN,c(.05),na.rm=TRUE)),
-by = station_id]
+#limits.tmin<-tmin[,.(
+#	mean.tmin = mean(TMIN, na.rm=TRUE),
+#	sd.tmin = sd(TMIN,na.rm=TRUE),
+#	xhigh.tmin = quantile(TMIN,c(.95),na.rm=TRUE),
+#	high.tmin = quantile(TMIN,c(.75),na.rm=TRUE),
+#	low.tmin = quantile(TMIN,c(.25),na.rm=TRUE),
+#	xlow.tmin = quantile(TMIN,c(.05),na.rm=TRUE)),
+#by = station_id]
 
-tmin<-limits.tmin[tmin,on = "station_id"]
+#tmin<-limits.tmin[tmin,on = "station_id"]
 
-norm.tmin<-tmin[,{
-	xhigh<-norm(TMIN>=xhigh.tmin)
-	high<-norm(TMIN>=high.tmin)
-	low<-norm(TMIN<=low.tmin)
-	xlow<-norm(TMIN<=xlow.tmin)
-.(
-	tmin.avg = mean(TMIN,na.rm=TRUE),
-	tmin.sd = sd(TMIN,na.rm=TRUE),
-	tmin.xhigh.length.u = xhigh$mean,
-	tmin.xhigh.length.sd = xhigh$sd,
-	tmin.high.length.u = high$mean,
-	tmin.high.length.sd = high$sd,
-	tmin.xlow.length.u = xlow$mean,
-	tmin.xlow.length.sd = xlow$sd,
-	tmin.low.length.u = low$mean,
-	tmin.low.length.sd = low$sd)},
-by=station_id]
+#norm.tmin<-tmin[,{
+#	xhigh<-norm(TMIN>=xhigh.tmin)
+#	high<-norm(TMIN>=high.tmin)
+#	low<-norm(TMIN<=low.tmin)
+#	xlow<-norm(TMIN<=xlow.tmin)
+#.(
+#	tmin.avg = mean(TMIN,na.rm=TRUE),
+#	tmin.sd = sd(TMIN,na.rm=TRUE),
+#	tmin.xhigh.length.u = xhigh$mean,
+#	tmin.xhigh.length.sd = xhigh$sd,
+#	tmin.high.length.u = high$mean,
+#	tmin.high.length.sd = high$sd,
+#	tmin.xlow.length.u = xlow$mean,
+#	tmin.xlow.length.sd = xlow$sd,
+#	tmin.low.length.u = low$mean,
+#	tmin.low.length.sd = low$sd)},
+#by=station_id]
 
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xhigh.u = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xhigh.sd = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.high.u = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.high.sd = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xlow.u = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xlow.sd = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.low.u = NA_real_)
-norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.low.sd = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xhigh.u = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xhigh.sd = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.high.u = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.high.sd = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xlow.u = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.xlow.sd = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.low.u = NA_real_)
+#norm.tmin <- norm.tmin %>% dplyr::mutate(tmin.low.sd = NA_real_)
 
-for(h in names(tmin.2.3)){
-	z<-tmin.2.3[[h]]
-	xhigh<-limits.tmin[station_id==h,xhigh.tmin]
-		high<-limits.tmin[station_id==h,high.tmin]
-		low<-limits.tmin[station_id==h,low.tmin]
-		xlow<-limits.tmin[station_id==h,xlow.tmin]
-	q<-subset(z,z$TMIN>=xhigh)
-if(nrow(q)>0){
-	w<-q %>% group_by(YEAR) %>% tally()
-	norm.tmin[station_id==h, tmin.xhigh.u := mean(w$n,na.rm=TRUE)]
-	norm.tmin[station_id==h, tmin.xhigh.sd := sd(w$n,na.rm=TRUE)]}
-	j<-subset(z,z$TMIN>=high)
-if(nrow(j)>0){
-	u<-j %>% group_by(YEAR) %>% tally()
-	norm.tmin[station_id==h,tmin.high.u := mean(u$n,na.rm=TRUE)]
-	norm.tmin[station_id==h,tmin.high.sd := sd(u$n,na.rm=TRUE)]}
-	k<-subset(z,z$TMIN<=xlow)
-if(nrow(k)>0){
-	v<-k %>% group_by(YEAR) %>% tally()
-	norm.tmin[station_id==h,tmin.xlow.u := mean(v$n,na.rm=TRUE)]
-	norm.tmin[station_id==h,tmin.xlow.sd := sd(v$n,na.rm=TRUE)]}
-	m<-subset(z,z$TMIN<=low)
-if(nrow(m)>0){
-	n<-m %>% group_by(YEAR) %>% tally()
-	norm.tmin[station_id==h,tmin.low.u:=mean(n$n,na.rm=TRUE)]
-	norm.tmin[station_id==h,tmin.low.sd:=sd(n$n,na.rm=TRUE)]}}
+#for(h in names(tmin.2.3)){
+#	z<-tmin.2.3[[h]]
+#	xhigh<-limits.tmin[station_id==h,xhigh.tmin]
+#		high<-limits.tmin[station_id==h,high.tmin]
+#		low<-limits.tmin[station_id==h,low.tmin]
+#		xlow<-limits.tmin[station_id==h,xlow.tmin]
+#	q<-subset(z,z$TMIN>=xhigh)
+#if(nrow(q)>0){
+#	w<-q %>% group_by(YEAR) %>% tally()
+#	norm.tmin[station_id==h, tmin.xhigh.u := mean(w$n,na.rm=TRUE)]
+#	norm.tmin[station_id==h, tmin.xhigh.sd := sd(w$n,na.rm=TRUE)]}
+#	j<-subset(z,z$TMIN>=high)
+#if(nrow(j)>0){
+#	u<-j %>% group_by(YEAR) %>% tally()
+#	norm.tmin[station_id==h,tmin.high.u := mean(u$n,na.rm=TRUE)]
+#	norm.tmin[station_id==h,tmin.high.sd := sd(u$n,na.rm=TRUE)]}
+#	k<-subset(z,z$TMIN<=xlow)
+#if(nrow(k)>0){
+#	v<-k %>% group_by(YEAR) %>% tally()
+#	norm.tmin[station_id==h,tmin.xlow.u := mean(v$n,na.rm=TRUE)]
+#	norm.tmin[station_id==h,tmin.xlow.sd := sd(v$n,na.rm=TRUE)]}
+#	m<-subset(z,z$TMIN<=low)
+#if(nrow(m)>0){
+#	n<-m %>% group_by(YEAR) %>% tally()
+#	norm.tmin[station_id==h,tmin.low.u:=mean(n$n,na.rm=TRUE)]
+#	norm.tmin[station_id==h,tmin.low.sd:=sd(n$n,na.rm=TRUE)]}}
 
-write.csv(norm.prcp,"/disks/home/abigail/thesis-repository/code/data/norm.prcp.csv")
-write.csv(norm.tmax,"/disks/home/abigail/thesis-repository/code/data/norm.tmax.csv")
-write.csv(norm.tmin,"/disks/home/abigail/thesis-repository/code/data/norm.tmin.csv")
-write.csv(prcp,"/disks/home/abigail/thesis-repository/code/data/prcp.csv")
-write.csv(tmax,"/disks/home/abigail/thesis-repository/code/data/tmax.csv")
-write.csv(tmin,"/disks/home/abigail/thesis-repository/code/data/tmin.csv")
+#write.csv(norm.prcp,"/disks/home/abigail/thesis-repository/code/data/norm.prcp.csv")
+#write.csv(norm.tmax,"/disks/home/abigail/thesis-repository/code/data/norm.tmax.csv")
+#write.csv(norm.tmin,"/disks/home/abigail/thesis-repository/code/data/norm.tmin.csv")
+#write.csv(prcp,"/disks/home/abigail/thesis-repository/code/data/prcp.csv")
+#write.csv(tmax,"/disks/home/abigail/thesis-repository/code/data/tmax.csv")
+#write.csv(tmin,"/disks/home/abigail/thesis-repository/code/data/tmin.csv")
+
+write.csv(map.1,"/disks/home/abigail/thesis-repository/code/data/map.csv")
+write.csv(avg.tmax,"/disks/home/abigail/thesis-repository/code/data/avg.tmax.csv")
+write.csv(avg.tmin,"/disks/home/abigail/thesis-repository/code/data/avg.tmin.csv")
