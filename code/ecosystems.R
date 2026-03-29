@@ -1,7 +1,6 @@
-#library(data.table)
-#library(tidyverse)
-#library(jsonlite)
-#library(sf)
+library(data.table)
+library(tidyverse)
+library(sf)
 
 #untar("/disks/home/abigail/thesis-repository/code/data/eco-data/all-maps-vector-geojson.tar.bz2")
 
