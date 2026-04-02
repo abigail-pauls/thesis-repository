@@ -49,32 +49,32 @@ data.one<-subset(data,data$soil.layer=="one")
 
 #write.csv("/disks/home/abigail/thesis-repository/code/data/texture.anova.csv")
 
-water<-c("wg1500","wg0200","wg0033")
-climate<-c("n.prcp.xhigh","n.dry.days","n.prcp.event","n.tmax.xhigh","n.tmax.xlow","n.tmax.avg","n.tmin.xhigh","n.tmin.xlow","n.tmin.avg")
+#water<-c("wg1500","wg0200","wg0033")
+#climate<-c("n.prcp.xhigh","n.dry.days","n.prcp.event","n.tmax.xhigh","n.tmax.xlow","n.tmax.avg","n.tmin.xhigh","n.tmin.xlow","n.tmin.avg")
 
-initial.moisture<-data.frame(water=character(),climate=character(),varPair=numeric(),varResid=numeric(),slope=numeric(),std.err=numeric(),
-	t.value=numeric(),p.value=numeric())
+#initial.moisture<-data.frame(water=character(),climate=character(),varPair=numeric(),varResid=numeric(),slope=numeric(),std.err=numeric(),
+#	t.value=numeric(),p.value=numeric())
 
-for(h in water){
-for(j in climate){
-	df<-data.one[,c("station_id",h,j)]
-	colnames(df)<-c("station_id","x","y")
-	df$x<-as.numeric(df$x)
-	df$y<-as.numeric(df$y)
-	df<-na.omit(df)
-	df<-df[is.finite(df$x)&is.finite(df$y),]
-if(var(df$y)==0) next
-	model<-lmer(x~y+(1|station_id),data=df)
-	b<-as.data.frame(summary(model)$coefficients)
-	a<-as.data.frame(summary(model)$varcor)
-	test<-Anova(model,type="II")
-if(nrow(a)<2|var(df$y)==0){
-	initial.moisture<-rbind(initial.moisture,data.frame(water=h,climate=j,varPair="NA",varResid="NA",slope="NA",
-std.err="NA",t.value="NA",p.value="NA"))}
-else{initial.moisture<-rbind(initial.moisture,data.frame(water=h,climate=j,varPair=a[1,"vcov"],varResid=a[2,"vcov"],slope=b[2,1],
-	std.err=b[2,2],t.value=b[2,3],p.value=test[1,3]))}}}
+#for(h in water){
+#for(j in climate){
+#	df<-data.one[,c("station_id",h,j)]
+#	colnames(df)<-c("station_id","x","y")
+#	df$x<-as.numeric(df$x)
+#	df$y<-as.numeric(df$y)
+#	df<-na.omit(df)
+#	df<-df[is.finite(df$x)&is.finite(df$y),]
+#if(var(df$y)==0) next
+#	model<-lmer(x~y+(1|station_id),data=df)
+#	b<-as.data.frame(summary(model)$coefficients)
+#	a<-as.data.frame(summary(model)$varcor)
+#	test<-Anova(model,type="II")
+#if(nrow(a)<2|var(df$y)==0){
+#	initial.moisture<-rbind(initial.moisture,data.frame(water=h,climate=j,varPair="NA",varResid="NA",slope="NA",
+#std.err="NA",t.value="NA",p.value="NA"))}
+#else{initial.moisture<-rbind(initial.moisture,data.frame(water=h,climate=j,varPair=a[1,"vcov"],varResid=a[2,"vcov"],slope=b[2,1],
+#	std.err=b[2,2],t.value=b[2,3],p.value=test[1,3]))}}}
 
-initial.moisture$significant<-ifelse(initial.moisture$p.value<0.05,"yes","no")
+#initial.moisture$significant<-ifelse(initial.moisture$p.value<0.05,"yes","no")
 
 #water.200<-c("n.prcp.high","n.prcp.xhigh.length")
 
