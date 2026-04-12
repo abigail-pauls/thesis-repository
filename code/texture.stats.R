@@ -312,7 +312,8 @@ data.one<-subset(data,data$soil.layer=="one")
 
 #temp.phetol$significant<-ifelse(temp.phetol$p.value<0.05,"yes","no")
 
-#phetb1.initial<-c("n.tmax.high","n.tmax.xhigh.length","n.tmax.low","n.tmax.xlow.length","n.tmin.high","n.tmin.xhigh.length","n.tmax.high.length","n.tmax.low.length","n.tmin.low.length")
+#phetb1.initial<-c("n.tmax.high","n.tmax.xhigh.length","n.tmax.low","n.tmax.xlow.length","n.tmin.high","n.tmin.xhigh.length",
+#	"n.tmax.high.length","n.tmax.low.length","n.tmin.low.length")
 
 #temp.phetb1<-data.frame(nutrient=character(),climate=character(),varPair=numeric(),varResid=numeric(),slope=numeric(),std.err=numeric(),
 #      t.value=numeric(),p.value=numeric())

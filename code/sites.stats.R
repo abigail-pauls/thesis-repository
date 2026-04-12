@@ -30,8 +30,7 @@ data.one<-subset(data,data$soil.layer=="one")
 
 valid_var <- function(x) {
 x <- x[!is.na(x)]
-length(unique(x)) > 1
-}
+length(unique(x)) > 1}
 
 site<-unique(data.one$station_id)
 
@@ -213,11 +212,9 @@ for(i in names(df)){
 	frame<-frame[,c(1,3)]
 	data.one<-merge(data.one,frame,by=c("station_id"),all.x=TRUE)}}
 
-#data.one<-data.one %>% filter(station_id %in% site)
-
 data.one<-merge(data.one,map,all.x=TRUE)
 data.one<-merge(data.one,avg.tmax,all.x=TRUE)
 data.one<-merge(data.one,avg.tmin,all.x=TRUE)
 
-write.csv(data.one,"/disks/home/abigail/thesis-repository/code/data/data.stats.R")
+write.csv(data.one,"/disks/home/abigail/thesis-repository/code/data/data.stats.csv")
 

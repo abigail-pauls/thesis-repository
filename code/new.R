@@ -1,38 +1,37 @@
+library(data.table)
+library(tidyverse)
 
-#library(data.table)
-#library(tidyverse)
+data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.stats.csv")
 
-#data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.stats.csv")
+data.one<-subset(data,data$soil.layer=="one")
 
-#data.one<-subset(data,data$soil.layer=="one")
+ecosystems<-read.csv("/disks/home/abigail/thesis-repository/code/data/biomes.csv")
 
-#ecosystems<-read.csv("/disks/home/abigail/thesis-repository/code/data/biomes.csv")
+biome<-ecosystems[,c(1,4,6,7)]
+colnames(biome)<-c("station_id","eco_name","biome_name","realm")
 
-#biome<-ecosystems[,c(1,4,6,7)]
-#colnames(biome)<-c("station_id","eco_name","biome_name","realm")
+biome <- biome %>% dplyr::mutate(biome = NA_real_)
 
-#biome <- biome %>% dplyr::mutate(biome = NA_real_)
+biome_map <- c(
+  "Boreal Forests/Taiga" = "boreal",
+  "Deserts & Xeric Shrublands" = "desert",
+  "Mediterranean Forests, Woodlands & Scrub" = "mediterranean",
+  "Montane Grasslands & Shrublands" = "montane.grassland",
+  "Temperate Broadleaf & Mixed Forests" = "temperate.forest",
+  "Temperate Conifer Forests" = "temperate.conifer",
+  "Temperate Grasslands, Savannas & Shrublands" = "temperate.grassland",
+  "Tropical & Subtropical Coniferous Forests" = "tropical.coniferous",
+  "Tropical & Subtropical Dry Broadleaf Forests" = "tropical.dry",
+  "Tropical & Subtropical Grasslands, Savannas & Shrublands" = "tropical.grassland",
+  "Tropical & Subtropical Moist Broadleaf Forests" = "tropical.moist",
+  "Tundra" = "tundra"
+)
 
-#biome_map <- c(
-#  "Boreal Forests/Taiga" = "boreal",
-#  "Deserts & Xeric Shrublands" = "desert",
-#  "Mediterranean Forests, Woodlands & Scrub" = "mediterranean",
-#  "Montane Grasslands & Shrublands" = "montane.grassland",
-#  "Temperate Broadleaf & Mixed Forests" = "temperate.forest",
-#  "Temperate Conifer Forests" = "temperate.conifer",
-#  "Temperate Grasslands, Savannas & Shrublands" = "temperate.grassland",
-#  "Tropical & Subtropical Coniferous Forests" = "tropical.coniferous",
-#  "Tropical & Subtropical Dry Broadleaf Forests" = "tropical.dry",
-#  "Tropical & Subtropical Grasslands, Savannas & Shrublands" = "tropical.grassland",
-#  "Tropical & Subtropical Moist Broadleaf Forests" = "tropical.moist",
-#  "Tundra" = "tundra"
-#)
+biome$biome <- biome_map[biome$biome_name]
 
-#biome$biome <- biome_map[biome$biome_name]
+data.one<-merge(data.one,biome,all.x=TRUE)
 
-#data.one<-merge(data.one,biome,all.x=TRUE)
-
-#data.one<-data.one[,colSums(!is.na(data.one))> 0]
+data.one<-data.one[,colSums(!is.na(data.one))> 0]
 
 setDT(data.one)
 
