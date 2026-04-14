@@ -3,6 +3,16 @@ library(data.table)
 
 final<-read.csv("/disks/home/abigail/thesis-repository/code/data/final.csv")
 
+final$soil.layer<-with(final,ifelse(upper_depth<=20,"one",
+        ifelse(upper_depth>=21&upper_depth<=40,"two",
+        ifelse(upper_depth>=41&upper_depth<=60,"three",
+        ifelse(upper_depth>=61&upper_depth<=80,"four",
+        ifelse(upper_depth>=81&upper_depth<=100,"five","six"))))))
+
+final$soil.layer<-as.factor(final$soil.layer)
+
+final<-final[final$soil.layer=="one",]
+
 norm.prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/norm.prcp.csv")
 norm.prcp.1<-norm.prcp[,-c(1)]
 
@@ -17,8 +27,6 @@ names(norm.tmin.1)[names(norm.tmin.1)=="tmin.avg"]<-"tmin.avg.u"
 final<-merge(final,norm.prcp.1,all.x=TRUE)
 final<-merge(final,norm.tmax.1,all.x=TRUE)
 final<-merge(final,norm.tmin.1,all.x=TRUE)
-
-check<-final
 
 final$n.prcp.avg<-((final$prcp.avg-final$prcp.avg.u)/final$prcp.avg.sd)
 
@@ -74,8 +82,37 @@ final$n.tmin.xlow.length<-((final$tmin.xlow.length-final$tmin.xlow.length.u)/fin
 
 final$n.tmin.low.length<-((final$tmin.low.length-final$tmin.low.length.u)/final$tmin.low.length.sd)
 
-write.csv(final,"/disks/home/abigail/thesis-repository/code/data/data.csv")
+ecosystems<-read.csv("/disks/home/abigail/thesis-repository/code/data/biomes.csv")
 
-final<-final[,-c(92:153)]
+biome<-ecosystems[,c(1,4,6,7)]
+colnames(biome)<-c("station_id","eco_name","biome_name","realm")
 
-write.csv(final,"/disks/home/abigail/thesis-repository/code/data/data.final.csv")
+biome <- biome %>% dplyr::mutate(biome = NA_real_)
+
+biome_map <- c(
+  "Boreal Forests/Taiga" = "boreal",
+  "Deserts & Xeric Shrublands" = "desert",
+  "Mediterranean Forests, Woodlands & Scrub" = "mediterranean",
+  "Montane Grasslands & Shrublands" = "montane.grassland",
+  "Temperate Broadleaf & Mixed Forests" = "temperate.forest",
+  "Temperate Conifer Forests" = "temperate.conifer",
+  "Temperate Grasslands, Savannas & Shrublands" = "temperate.grassland",
+  "Tropical & Subtropical Coniferous Forests" = "tropical.coniferous",
+  "Tropical & Subtropical Dry Broadleaf Forests" = "tropical.dry",
+  "Tropical & Subtropical Grasslands, Savannas & Shrublands" = "tropical.grassland",
+  "Tropical & Subtropical Moist Broadleaf Forests" = "tropical.moist",
+  "Tundra" = "tundra")
+
+biome$biome <- biome_map[biome$biome_name]
+
+data<-merge(final,biome,all.x=TRUE)
+
+#data<-data[,colSums(!is.na(data))> 0]
+
+#write.csv(final,"/disks/home/abigail/thesis-repository/code/data/data.csv")
+
+data<-data[,-c(2:8,10,13,15,95:156,184:186)]
+
+write.csv(data,"/disks/home/abigail/thesis-repository/code/data/data.final.csv")
+
+#final<-subset(final,final$biome!="tundra"&final$biome!="tropical.coniferous")

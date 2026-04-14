@@ -1,11 +1,11 @@
-library(multcompView)
-library(lme4)
-library(car)
-library(multcomp)
-library(tidyverse)
-library(data.table)
+#library(multcompView)
+#library(lme4)
+#library(car)
+#library(multcomp)
+#library(tidyverse)
+#library(data.table)
 
-data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.final.csv")
+#data<-read.csv("/disks/home/abigail/thesis-repository/code/data/data.final.csv")
 
 data$continent<-as.factor(data$continent)
 data$country_name<-as.factor(data$country_name)
@@ -28,7 +28,7 @@ data<-merge(data,total.tmax.avg,all.x=TRUE)
 data<-merge(data,total.tmin.avg,all.x=TRUE)
 
 data$soil.layer<-with(data,ifelse(upper_depth<=20,"one",
-        ifelse(upper_depth>=21&upper_depth<=40,"two",
+       ifelse(upper_depth>=21&upper_depth<=40,"two",
         ifelse(upper_depth>=41&upper_depth<=60,"three",
         ifelse(upper_depth>=61&upper_depth<=80,"four",
         ifelse(upper_depth>=81&upper_depth<=100,"five","six"))))))
@@ -64,182 +64,257 @@ data.one<-merge(data.one,biome,all.x=TRUE)
 
 data.one<-data.one[,colSums(!is.na(data.one))> 0]
 
-attribute<-c("clay","silt","sand","tceq","cfgr","wg1500","wg0200","wg0033","nitkjd","phetol","phetb1","phetm3","orgc","totc","phca")
+data.a<-with(data.one,data.one[biome=="desert"|biome=="mediterranean"|biome=="temperate.conifer"|biome=="temperate.forest"|
+        biome=="tropical.grassland"|biome=="tropical.moist",])
 
-initial<-data.frame(
-	soil=character(),
-	property=character(),
-	Df=numeric(),
-	Sum.sqr=numeric(),
-	Mean.sqr=numeric(),
-	F.value=numeric(),
-	p.value=numeric())
+#attribute<-c("clay","silt","sand","tceq","cfgr","wg1500","wg0200","wg0033",
+#"nitkjd","phetol","phetb1","phetm3","orgc","totc","phca","bdwsod","bdfifm","ecec","elco50",
+#"orgm")
 
-for(i in attribute){
-	df<-data.one[,c("station_id","biome",i)]
+#initial<-data.frame(
+#	soil=character(),
+#	property=character(),
+#	Df=numeric(),
+#	Sum.sqr=numeric(),
+#	Mean.sqr=numeric(),
+#	F.value=numeric(),
+#	p.value=numeric())
 
-	df$station_id<-as.factor(df$station_id)
-	df$biome<-as.factor(df$biome)
+#for(i in attribute){
+#	df<-data.one[,c("station_id","biome",i)]
 
-	colnames(df)<-c("station_id","biome","soil")
+#	df$station_id<-as.factor(df$station_id)
+#	df$biome<-as.factor(df$biome)
 
-	model<-aov(soil~biome+station_id,df)
-	summary<-summary(model)[[1]]
-	initial<-rbind(initial,data.frame(
-		soil=rep(i,nrow(summary)),       
-		property=rownames(summary),
-		Df=summary$Df,
-		Sum.sqr=summary$`Sum Sq`,
-		Mean.sqr=summary$`Mean Sq`,
-		F.value=summary$`F value`,
-		p.value=summary$`Pr(>F)`))}
+#	colnames(df)<-c("station_id","biome","soil")
 
-initial$sign<-ifelse(initial$p.value<0.05,"yes","no")
+#	model<-aov(soil~biome+station_id,df)
+#	summary<-summary(model)[[1]]
+#	initial<-rbind(initial,data.frame(
+#		soil=rep(i,nrow(summary)),       
+#		property=rownames(summary),
+#		Df=summary$Df,
+#		Sum.sqr=summary$`Sum Sq`,
+#		Mean.sqr=summary$`Mean Sq`,
+#		F.value=summary$`F value`,
+#		p.value=summary$`Pr(>F)`))}
 
-tukey.results<-data.frame(soil=character(),biomes=character(),p.adj=numeric())
+#initial$sign<-ifelse(initial$p.value<0.05,"yes","no")
 
-for(h in attribute){
-	df<-data.one[,c("biome",h)]
-	df$biome<-as.factor(df$biome)
-	colnames(df)<-c("biome","soil")
-	model<-aov(soil~biome,data=df)
-	test<-TukeyHSD(model)
-	tukey<-as.data.frame(test$biome)
-for(j in 1:nrow(tukey)){
-if(tukey$`p adj`[[j]]<0.05){
-	tukey.results<-rbind(tukey.results,data.frame(soil=h,biomes=rownames(tukey)[[j]],p.adj=tukey$`p adj`[[j]]))}}}
+#tukey.results<-data.frame(soil=character(),biomes=character(),p.adj=numeric())
 
-tukey.results<-tukey.results[order(tukey.results$biome),]
+#for(h in attribute){
+#	df<-data.one[,c("biome",h)]
+#	df$biome<-as.factor(df$biome)
+#	colnames(df)<-c("biome","soil")
+#	model<-aov(soil~biome,data=df)
+#	test<-TukeyHSD(model)
+#	tukey<-as.data.frame(test$biome)
+#for(j in 1:nrow(tukey)){
+#if(tukey$`p adj`[[j]]<0.05){
+#	tukey.results<-rbind(tukey.results,data.frame(soil=h,biomes=rownames(tukey)[[j]],p.adj=tukey$`p adj`[[j]]))}}}
+#tukey.results<-tukey.results[order(tukey.results$biome),]
 
-tukey.results$sign<-ifelse(tukey.results$p.adj<0.05,"yes","no")
+#tukey.results$sign<-ifelse(tukey.results$p.adj<0.05,"yes","no")
 
-biomes.list<-list()
+#biomes.list<-list()
 
-for(k in attribute){
-	df<-data.one[,c("biome",k)]
-	df$biome<-as.factor(df$biome)
-	colnames(df)<-c("biome","soil")
-	model<-aov(soil~biome,df)
-	test<-TukeyHSD(model)
-	biomes.list[[k]]<-multcompLetters4(model,test)}
+#for(k in attribute){
+#	df<-data.one[,c("biome",k)]
+#	df$biome<-as.factor(df$biome)
+#	colnames(df)<-c("biome","soil")
+#	model<-aov(soil~biome,df)
+#	test<-TukeyHSD(model)
+#	biomes.list[[k]]<-multcompLetters4(model,test)}
 
-var.contr<-function(model){
-	raneff<-as.data.frame(VarCorr(model))
-	ranvar<-raneff$vcov
-	X<-model.matrix(model)
-	beta<-fixef(model)
-	fixvar<-var(as.vector(X%*%beta))
-	total<-sum(ranvar)+fixvar
-	rancontr<-ranvar/total
-	fixcontr<-fixvar/total
-	names(fixcontr)<-c("fixed")
-	names(rancontr)<-c(raneff$grp)
-	contr<-c(rancontr,fixcontr)
-	varcontr<-data.frame(
-		variance=c(ranvar,fixvar),proportion=contr,precent=contr*100)
-	return(varcontr)}
+#var.contr<-function(model){
+#	raneff<-as.data.frame(VarCorr(model))
+#	ranvar<-raneff$vcov
+#	X<-model.matrix(model)
+#	beta<-fixef(model)
+#	fixvar<-var(as.vector(X%*%beta))
+#	total<-sum(ranvar)+fixvar
+#	rancontr<-ranvar/total
+#	fixcontr<-fixvar/total
+#	names(fixcontr)<-c("fixed")
+#	names(rancontr)<-c(raneff$grp)
+#	contr<-c(rancontr,fixcontr)
+#	varcontr<-data.frame(
+#		variance=c(ranvar,fixvar),proportion=contr,precent=contr*100)
+#	return(varcontr)}
 
-#sand.models<-list()
-#sand.tests<-list()
-#sand.var<-list()
+sand.models<-list()
+sand.tests<-list()
+sand.var<-list()
 
-#sand.property<-c("map","total.avg.tmax","total.avg.tmin","tceq","orgm","phca","cfgr","cfvo")
+sand.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-#for(k in sand.property){
-#	df<-data.one[,c("station_id","biome","sand",k)]
-#	colnames(df)<-c("station_id","biome","sand",paste0(k))
-#	model<-lmer(sand~df[,4]+(1|biome)+(1|station_id),df)
-#	sand.models[[k]]<-summary(model)
-#	sand.tests[[k]]<-Anova(model,type="II")
-#	sand.var[[k]]<-var.contr(model)}
+for(k in sand.property){
+	df<-data.a[,c("station_id","biome","sand",k)]
+	colnames(df)<-c("station_id","biome","sand",paste0(k))
+	model<-lmer(sand~df[,4]+(1|biome)+(1|station_id),df)
+	sand.models[[k]]<-summary(model)
+	sand.tests[[k]]<-Anova(model,type="II")
+	sand.var[[k]]<-var.contr(model)}
 
-#silt.models<-list()
-#silt.tests<-list()
-#silt.var<-list()
+silt.models<-list()
+silt.tests<-list()
+silt.var<-list()
 
-#silt.property<-c("map","total.avg.tmax","total.avg.tmin","tceq","orgm","phca","cfgr","cfvo")
+silt.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-#for(k in silt.property){
-#        df<-data.one[,c("station_id","biome","silt",k)]
-#        colnames(df)<-c("station_id","biome","silt",paste0(k))
-#        model<-lmer(silt~df[,4]+(1|biome)+(1|station_id),df)
-#        silt.models[[k]]<-summary(model)
-#        silt.tests[[k]]<-Anova(model,type="II")
-#        silt.var[[k]]<-var.contr(model)}
+for(k in silt.property){
+        df<-data.a[,c("station_id","biome","silt",k)]
+        colnames(df)<-c("station_id","biome","silt",paste0(k))
+        model<-lmer(silt~df[,4]+(1|biome)+(1|station_id),df)
+        silt.models[[k]]<-summary(model)
+        silt.tests[[k]]<-Anova(model,type="II")
+        silt.var[[k]]<-var.contr(model)}
 
 clay.models<-list()
 clay.tests<-list()
 clay.var<-list()
 
-clay.property<-c("map","total.avg.tmax","total.avg.tmin","tceq","orgm","phca","cfgr","cfvo")
+clay.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
 for(k in clay.property){
-        df<-data.one[,c("station_id","biome","clay",k)]
+        df<-data.a[,c("station_id","biome","clay",k)]
         colnames(df)<-c("station_id","biome","clay",paste0(k))
         model<-lmer(clay~df[,4]+(1|biome)+(1|station_id),df)
         clay.models[[k]]<-summary(model)
         clay.tests[[k]]<-Anova(model,type="II")
         clay.var[[k]]<-var.contr(model)}
 
-#tceq.models<-list()
-#tceq.tests<-list()
-#tceq.var<-list()
+tceq.models<-list()
+tceq.tests<-list()
+tceq.var<-list()
 
-#tceq.property<-c("map","total.avg.tmax","total.avg.tmin","totc","orgc","orgm","phca","cfgr","cfvo","sand","silt","clay")
+tceq.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-#for(k in tceq.property){
-#        df<-data.one[,c("station_id","biome","tceq",k)]
-#        colnames(df)<-c("station_id","biome","tceq",paste0(k))
-#        model<-lmer(tceq~df[,4]+(1|biome)+(1|station_id),df)
-#       tceq.models[[k]]<-summary(model)
-#      tceq.tests[[k]]<-Anova(model,type="II")
-#     tceq.var[[k]]<-var.contr(model)}
+for(k in tceq.property){
+        df<-data.a[,c("station_id","biome","tceq",k)]
+        colnames(df)<-c("station_id","biome","tceq",paste0(k))
+        model<-lmer(tceq~df[,4]+(1|biome)+(1|station_id),df)
+       tceq.models[[k]]<-summary(model)
+      tceq.tests[[k]]<-Anova(model,type="II")
+     tceq.var[[k]]<-var.contr(model)}
 
-#orgm.models<-list()
-#orgm.tests<-list()
-#orgm.var<-list()
+orgm.models<-list()
+orgm.tests<-list()
+orgm.var<-list()
 
-#orgm.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","cfgr","cfvo")
+orgm.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-#for(k in orgm.property){
-#        df<-data.one[,c("station_id","biome","orgm",k)]
-#	df<-na.omit(df)
-#if(nrow(df)<3) next
- #       colnames(df)<-c("station_id","biome","orgm",paste0(k))
-  #      model<-lmer(orgm~df[,4]+(1|biome)+(1|station_id),df)
-   #     orgm.models[[k]]<-summary(model)
-    #    orgm.tests[[k]]<-Anova(model,type="II")
-     #   orgm.var[[k]]<-var.contr(model)}
+for(k in orgm.property){
+        df<-data.a[,c("station_id","biome","orgm",k)]
+	df<-na.omit(df)
+if(nrow(df)<3) next
+        colnames(df)<-c("station_id","biome","orgm",paste0(k))
+        model<-lmer(orgm~df[,4]+(1|biome)+(1|station_id),df)
+        orgm.models[[k]]<-summary(model)
+        orgm.tests[[k]]<-Anova(model,type="II")
+        orgm.var[[k]]<-var.contr(model)}
 
-#cfgr.models<-list()
-#cfgr.tests<-list()
-#cfgr.var<-list()
+cfgr.models<-list()
+cfgr.tests<-list()
+cfgr.var<-list()
 
-#cfgr.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq")
+cfgr.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-#for(k in cfgr.property){
-#        df1<-df[,c("station_id","biome","cfgr",k)]
-#	df1<-na.omit(df1)
-#if(nrow(df1)<3) next
-#        colnames(df1)<-c("station_id","biome","cfgr","prop")
-#        model<-lmer(cfgr~prop+(1|biome)+(1|station_id),df1)
-#        cfgr.models[[k]]<-summary(model)
-#        cfgr.tests[[k]]<-Anova(model,type="II")
-#        cfgr.var[[k]]<-var.contr(model)}
+for(k in cfgr.property){
+        df1<-data.a[,c("station_id","biome","cfgr",k)]
+	df1<-na.omit(df1)
+if(nrow(df1)<3) next
+        colnames(df1)<-c("station_id","biome","cfgr","prop")
+        model<-lmer(cfgr~prop+(1|biome)+(1|station_id),df1)
+        cfgr.models[[k]]<-summary(model)
+        cfgr.tests[[k]]<-Anova(model,type="II")
+        cfgr.var[[k]]<-var.contr(model)}
 
-#cfvo.models<-list()
-#cfvo.tests<-list()
-#cfvo.var<-list()
+cfvo.models<-list()
+cfvo.tests<-list()
+cfvo.var<-list()
 
-#cfvo.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq")
+cfvo.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-#for(k in cfvo.property){
- #       df<-data.one[,c("station_id","biome","cfvo",k)]
-  #      colnames(df)<-c("station_id","biome","cfvo",paste0(k))
-   #     model<-lmer(cfvo~df[,4]+(1|biome)+(1|station_id),df)
-    #    cfvo.models[[k]]<-summary(model)
-     #   cfvo.tests[[k]]<-Anova(model,type="II")
-      #  cfvo.var[[k]]<-var.contr(model)}
+for(k in cfvo.property){
+        df<-data.a[,c("station_id","biome","cfvo",k)]
+        colnames(df)<-c("station_id","biome","cfvo",paste0(k))
+       model<-lmer(cfvo~df[,4]+(1|biome)+(1|station_id),df)
+      cfvo.models[[k]]<-summary(model)
+     cfvo.tests[[k]]<-Anova(model,type="II")
+    cfvo.var[[k]]<-var.contr(model)}
+
+phca.models<-list()
+phca.tests<-list()
+phca.var<-list()
+
+phca.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
+
+for(k in phca.property){
+        df<-data.a[,c("station_id","biome","phca",k)]
+        colnames(df)<-c("station_id","biome","phca",paste0(k))
+       model<-lmer(phca~df[,4]+(1|biome)+(1|station_id),df)
+      phca.models[[k]]<-summary(model)
+     phca.tests[[k]]<-Anova(model,type="II")
+    phca.var[[k]]<-var.contr(model)}
+
+bdwsod.models<-list()
+bdwsod.tests<-list()
+bdwsod.var<-list()
+
+bdwsod.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
+
+for(k in bdwsod.property){
+        df<-data.a[,c("station_id","biome","bdwsod",k)]
+        colnames(df)<-c("station_id","biome","bdwsod",paste0(k))
+       model<-lmer(bdwsod~df[,4]+(1|biome)+(1|station_id),df)
+      bdwsod.models[[k]]<-summary(model)
+     bdwsod.tests[[k]]<-Anova(model,type="II")
+    bdwsod.var[[k]]<-var.contr(model)}
+
+bdfifm.models<-list()
+bdfifm.tests<-list()
+bdfifm.var<-list()
+
+bdfifm.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
+
+for(k in bdfifm.property){
+        df<-data.a[,c("station_id","biome","bdfifm",k)]
+        colnames(df)<-c("station_id","biome","bdfifm",paste0(k))
+       model<-lmer(bdfifm~df[,4]+(1|biome)+(1|station_id),df)
+      bdfifm.models[[k]]<-summary(model)
+     bdfifm.tests[[k]]<-Anova(model,type="II")
+    bdfifm.var[[k]]<-var.contr(model)}
+
+elco50.models<-list()
+elco50.tests<-list()
+elco50.var<-list()
+
+elco50.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
+
+for(k in elco50.property){
+        df<-data.a[,c("station_id","biome","elco50",k)]
+        colnames(df)<-c("station_id","biome","elco50",paste0(k))
+       model<-lmer(elco50~df[,4]+(1|biome)+(1|station_id),df)
+      elco50.models[[k]]<-summary(model)
+     elco50.tests[[k]]<-Anova(model,type="II")
+    elco50.var[[k]]<-var.contr(model)}
+
+ecec.models<-list()
+ecec.tests<-list()
+ecec.var<-list()
+
+ecec.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
+
+for(k in ecec.property){
+        df<-data.a[,c("station_id","biome","ecec",k)]
+        colnames(df)<-c("station_id","biome","ecec",paste0(k))
+       model<-lmer(ecec~df[,4]+(1|biome)+(1|station_id),df)
+      ecec.models[[k]]<-summary(model)
+     ecec.tests[[k]]<-Anova(model,type="II")
+    ecec.var[[k]]<-var.contr(model)}
+
 
 #wg1500.models<-list()
 #wg1500.tests<-list()
@@ -306,8 +381,9 @@ nitkjd.models<-list()
 nitkjd.tests<-list()
 nitkjd.var<-list()
 
-nitkjd.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","totc","orgm","orgc","elco50","ecec","cecph7",
-	"bdwsod","bdfifm","phetb1","phetm3","cfgr","cfvo","wg1500","wg0200","wg0033")
+nitkjd.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt",
+	"clay","phca","tceq","orgm","elco50","ecec","bdwsod","bdfifm","cfgr",
+	"wg1500")
 
 for(k in nitkjd.property){
         df<-data.one[,c("station_id","biome","nitkjd",k)]
@@ -319,16 +395,17 @@ if(nrow(df)<3) next
        nitkjd.tests[[k]]<-Anova(model,type="II")
        nitkjd.var[[k]]<-var.contr(model)}
 
-nitkjd.model<-lmer(nitkjd~map*total.avg.tmax*silt*phca*elco50*cecph7*bdwsod*wg1500+(1|station_id)+(1|biome),data.one)
-nitkjd.test<-Anova(nitkjd.model,type="II")
-nitkjd.var<-var.contr(nitkjd.model)
+#nitkjd.model<-lmer(nitkjd~map*total.avg.tmax*silt*phca*elco50*cecph7*bdwsod*wg1500+(1|station_id)+(1|biome),data.one)
+#nitkjd.test<-Anova(nitkjd.model,type="II")
+#nitkjd.var<-var.contr(nitkjd.model)
 
 orgc.models<-list()
 orgc.tests<-list()
 orgc.var<-list()
 
-orgc.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","totc","orgm","nitkjd","elco50","ecec","cecph7",
-        "bdwsod","bdfifm","phetb1","phetm3","cfgr","cfvo","wg1500","wg0200","wg0033")
+orgc.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay",
+	"phca","tceq","orgm","elco50","ecec","bdwsod","bdfifm","cfgr",
+	"wg1500")
 
 for(k in orgc.property){
         df<-data.one[,c("station_id","biome","orgc",k)]
@@ -340,68 +417,67 @@ if(nrow(df)<3) next
        orgc.tests[[k]]<-Anova(model,type="II")
        orgc.var[[k]]<-var.contr(model)}
 
-orgc.model<-lmer(orgc~total.avg.tmax*silt*phca*elco50*cecph7*bdwsod*bdfifm*wg1500+(1|station_id)+(1|biome),data.one)
-orgc.test<-Anova(orgc.model,type="II")
-orgc.var<-var.contr(orgc.model)
+#orgc.model<-lmer(orgc~total.avg.tmax*silt*phca*elco50*cecph7*bdwsod*bdfifm*wg1500+(1|station_id)+(1|biome),data.one)
+#orgc.test<-Anova(orgc.model,type="II")
+#orgc.var<-var.contr(orgc.model)
 
-totc.models<-list()
-totc.tests<-list()
-totc.var<-list()
+#totc.models<-list()
+#totc.tests<-list()
+#totc.var<-list()
 
-totc.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","orgc","orgm","nitkjd","elco50","ecec","cecph7",
-        "bdwsod","bdfifm","phetb1","phetm3","cfgr","cfvo","wg1500","wg0200","wg0033")
+#totc.property<-c("map","total.avg.tmax","total.avg.tmin","wg1500")
 
-for(k in totc.property){
-        df<-data.one[,c("station_id","biome","totc",k)]
-        df<-na.omit(df)
-if(nrow(df)<3) next
-       colnames(df)<-c("station_id","biome","totc",paste0(k))
-       model<-lmer(totc~df[,4]+(1|biome)+(1|station_id),df)
-       totc.models[[k]]<-summary(model)
-       totc.tests[[k]]<-Anova(model,type="II")
-       totc.var[[k]]<-var.contr(model)}
+#for(k in totc.property){
+#        df<-data.one[,c("station_id","biome","totc",k)]
+#        df<-na.omit(df)
+#if(nrow(df)<3) next
+#       colnames(df)<-c("station_id","biome","totc",paste0(k))
+#       model<-lmer(totc~df[,4]+(1|biome)+(1|station_id),df)
+#       totc.models[[k]]<-summary(model)
+#       totc.tests[[k]]<-Anova(model,type="II")
+#       totc.var[[k]]<-var.contr(model)}
 
-totc.model<-lmer(totc~map*total.avg.tmax*sand*silt*phca*cecph7*bdwsod*wg1500+(1|station_id)+(1|biome),data.one)
-totc.test<-Anova(totc.model,type="II")
-totc.var<-var.contr(totc.model)
+#totc.model<-lmer(totc~map*total.avg.tmax*sand*silt*phca*cecph7*bdwsod*wg1500+(1|station_id)+(1|biome),data.one)
+#totc.test<-Anova(totc.model,type="II")
+#totc.var<-var.contr(totc.model)
 
-phetb1.models<-list()
-phetb1.tests<-list()
-phetb1.var<-list()
+#phetb1.models<-list()
+#phetb1.tests<-list()
+#phetb1.var<-list()
 
-phetb1.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","totc","orgc","orgm","nitkjd","elco50","ecec","cecph7",
-        "bdwsod","bdfifm","cfgr","cfvo","wg1500","wg0200","wg0033")
+#phetb1.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","totc","orgc","orgm","nitkjd","elco50","ecec","cecph7",
+#        "bdwsod","bdfifm","cfgr","cfvo","wg1500","wg0200","wg0033")
 
-for(k in phetb1.property){
-        df<-data.one[,c("station_id","biome","phetb1",k)]
-        df<-na.omit(df)
-if(nrow(df)<3) next
-       colnames(df)<-c("station_id","biome","phetb1",paste0(k))
-       model<-lmer(phetb1~df[,4]+(1|biome)+(1|station_id),df)
-       phetb1.models[[k]]<-summary(model)
-       phetb1.tests[[k]]<-Anova(model,type="II")
-       phetb1.var[[k]]<-var.contr(model)}
+#for(k in phetb1.property){
+#        df<-data.one[,c("station_id","biome","phetb1",k)]
+#        df<-na.omit(df)
+#if(nrow(df)<3) next
+#       colnames(df)<-c("station_id","biome","phetb1",paste0(k))
+#       model<-lmer(phetb1~df[,4]+(1|biome)+(1|station_id),df)
+#       phetb1.models[[k]]<-summary(model)
+#       phetb1.tests[[k]]<-Anova(model,type="II")
+#       phetb1.var[[k]]<-var.contr(model)}
 
-phetb1.model<-lmer(phetb1~sand*silt*clay*cecph7*bdwsod*wg1500+(1|station_id)+(1|biome),data.one)
-phetb1.test<-Anova(phetb1.model,type="II")
-phetb1.var<-var.contr(phetb1.model)
+#phetb1.model<-lmer(phetb1~sand*silt*clay*cecph7*bdwsod*wg1500+(1|station_id)+(1|biome),data.one)
+#phetb1.test<-Anova(phetb1.model,type="II")
+#phetb1.var<-var.contr(phetb1.model)
 
-phetm3.models<-list()
-phetm3.tests<-list()
-phetm3.var<-list()
+#phetm3.models<-list()
+#phetm3.tests<-list()
+#phetm3.var<-list()
 
-phetm3.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","totc","orgc","orgm","nitkjd","elco50","ecec","cecph7",
-        "bdwsod","bdfifm","cfgr","cfvo","wg1500","wg0200","wg0033")
+#phetm3.property<-c("map","total.avg.tmax","total.avg.tmin","sand","silt","clay","phca","tceq","totc","orgc","orgm","nitkjd","elco50","ecec","cecph7",
+#        "bdwsod","bdfifm","cfgr","cfvo","wg1500","wg0200","wg0033")
 
-for(k in phetm3.property){
-        df<-data.one[,c("station_id","biome","phetm3",k)]
-        df<-na.omit(df)
-if(nrow(df)<3) next
-       colnames(df)<-c("station_id","biome","phetm3",paste0(k))
-       model<-lmer(phetm3~df[,4]+(1|biome)+(1|station_id),df)
-       phetm3.models[[k]]<-summary(model)
-       phetm3.tests[[k]]<-Anova(model,type="II")
-       phetm3.var[[k]]<-var.contr(model)}
+#for(k in phetm3.property){
+#        df<-data.one[,c("station_id","biome","phetm3",k)]
+#        df<-na.omit(df)
+#if(nrow(df)<3) next
+#       colnames(df)<-c("station_id","biome","phetm3",paste0(k))
+#       model<-lmer(phetm3~df[,4]+(1|biome)+(1|station_id),df)
+#       phetm3.models[[k]]<-summary(model)
+#       phetm3.tests[[k]]<-Anova(model,type="II")
+#       phetm3.var[[k]]<-var.contr(model)}
 
 
 #for(i in properties){
