@@ -1,77 +1,77 @@
 #library(data.table)
 #library(tidyverse)
 
-soil<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
+final<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 #prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/prcp.csv")
 #limits.prcp<-read.csv("/disks/home/abigail/thesis-repository/code/data/limits.prcp.csv")
 
-setDT(soil)
-setDT(limits.prcp)
+#setDT(final)
+#setDT(limits.prcp)
 
-soil[,row_id := .I]
+#final[,row_id := .I]
 
-prcp<-rbindlist(prcp.2.1,idcol="station_id",fill=TRUE)
+#prcp<-rbindlist(prcp.2.1,idcol="station_id",fill=TRUE)
 
-setDT(prcp)
+#setDT(prcp)
 
-one<-soil[,c("station_id","date","start.date","row_id")]
-two<-limits.prcp[,c("station_id","xhigh.prcp","high.prcp")]
+#one<-final[,c("station_id","date","start.date","row_id")]
+#two<-limits.prcp[,c("station_id","xhigh.prcp","high.prcp")]
 
-three<-merge(one,two,by="station_id",all=TRUE)
+#three<-merge(one,two,by="station_id",all=TRUE)
 
-four<-subset(three,!is.na(three$xhigh.prcp)|!is.na(three$high))
+#four<-subset(three,!is.na(three$xhigh.prcp)|!is.na(three$high))
 
-prcp.id <- split(prcp[, .(DATE, PRCP)], prcp$station_id)
+#prcp.id <- split(prcp[, .(DATE, PRCP)], prcp$station_id)
 
-limits.id <- split(four[, .(row_id,station_id,start.date,date,xhigh.prcp,high.prcp)], four$row_id)
+#limits.id <- split(four[, .(row_id,station_id,start.date,date,xhigh.prcp,high.prcp)], four$row_id)
 
-filter.prcp<-list()
+#filter.prcp<-list()
 
-for(j in names(limits.id)){
-        id<-limits.id[[j]]$station_id
-if(is.null(prcp.id[[id]])) next
-        data<-prcp.id[[id]]
-        limits<-limits.id[[j]]
-        sd<-limits$start.date
-        ed<-limits$date
-filter.prcp[[j]]<-data %>% dplyr::filter(DATE<=ed & DATE>=sd)}
+#for(j in names(limits.id)){
+#        id<-limits.id[[j]]$station_id
+#if(is.null(prcp.id[[id]])) next
+#        data<-prcp.id[[id]]
+#        limits<-limits.id[[j]]
+#        sd<-limits$start.date
+#        ed<-limits$date
+#filter.prcp[[j]]<-data %>% dplyr::filter(DATE<=ed & DATE>=sd)}
 
-prcp.metric<-list()
+#prcp.metric<-list()
 
-for(i in names(filter.prcp)){
-	xhigh<-limits.id[[i]]$xhigh.prcp
-	high<-limits.id[[i]]$high.prcp
-temp<-list()
-temp$prcp.avg <- with(filter.prcp[[i]],mean(PRCP,na.rm=TRUE))
-temp$prcp.mean <- with(filter.prcp[[i]],mean(PRCP[PRCP!=0],na.rm=TRUE)) 
-temp$prcp.events <- with(filter.prcp[[i]],sum(PRCP!=0,na.rm=TRUE))
-temp$dry.days <- with(filter.prcp[[i]],sum(PRCP==0,na.rm=TRUE))
-temp$prcp.xhigh <- with(filter.prcp[[i]],sum(PRCP>=xhigh,na.rm=TRUE))
-temp$prcp.high <- with(filter.prcp[[i]],sum(PRCP>=high,na.rm=TRUE))
-temp$dry.days.length <- norm(filter.prcp[[i]]$PRCP==0)$mean
-temp$prcp.xhigh.length <- norm(filter.prcp[[i]]$PRCP>=xhigh)$mean
-temp$prcp.high.length <- norm(filter.prcp[[i]]$PRCP>=high)$mean
-prcp.metric[[i]]<-temp}
+#for(i in names(filter.prcp)){
+#	xhigh<-limits.id[[i]]$xhigh.prcp
+#	high<-limits.id[[i]]$high.prcp
+#temp<-list()
+#temp$prcp.avg <- with(filter.prcp[[i]],mean(PRCP,na.rm=TRUE))
+#temp$prcp.mean <- with(filter.prcp[[i]],mean(PRCP[PRCP!=0],na.rm=TRUE)) 
+#temp$prcp.events <- with(filter.prcp[[i]],sum(PRCP!=0,na.rm=TRUE))
+#temp$dry.days <- with(filter.prcp[[i]],sum(PRCP==0,na.rm=TRUE))
+#temp$prcp.xhigh <- with(filter.prcp[[i]],sum(PRCP>=xhigh,na.rm=TRUE))
+#temp$prcp.high <- with(filter.prcp[[i]],sum(PRCP>=high,na.rm=TRUE))
+#temp$dry.days.length <- norm(filter.prcp[[i]]$PRCP==0)$mean
+#temp$prcp.xhigh.length <- norm(filter.prcp[[i]]$PRCP>=xhigh)$mean
+#temp$prcp.high.length <- norm(filter.prcp[[i]]$PRCP>=high)$mean
+#prcp.metric[[i]]<-temp}
 
-prcp.metric.1<-rbindlist(prcp.metric,idcol="row_id",fill=TRUE)
+#prcp.metric.1<-rbindlist(prcp.metric,idcol="row_id",fill=TRUE)
 
-xhigh.zero <- limits.prcp$station_id[limits.prcp$xhigh.prcp == 0]
-high.zero  <- limits.prcp$station_id[limits.prcp$high.prcp  == 0]
+#xhigh.zero <- limits.prcp$station_id[limits.prcp$xhigh.prcp == 0]
+#high.zero  <- limits.prcp$station_id[limits.prcp$high.prcp  == 0]
 
-for (i in high.zero) {
-	rows <- four[station_id == i, row_id]
-	for (j in rows) {
-if (j <= length(filter.prcp) && !is.null(filter.prcp[[j]])) {
-	prcp.metric.1$prcp.high[prcp.metric.1$row_id == j] <-
-	sum(filter.prcp[[j]]$PRCP != 0, na.rm = TRUE)}}}
+#for (i in high.zero) {
+#	rows <- four[station_id == i, row_id]
+#	for (j in rows) {
+#if (j <= length(filter.prcp) && !is.null(filter.prcp[[j]])) {
+#	prcp.metric.1$prcp.high[prcp.metric.1$row_id == j] <-
+#	sum(filter.prcp[[j]]$PRCP != 0, na.rm = TRUE)}}}
 
-prcp.metric.1$row_id<-as.integer(prcp.metric.1$row_id)
+#prcp.metric.1$row_id<-as.integer(prcp.metric.1$row_id)
 
 #final<-merge(soil,prcp.metric.1,by="row_id",all.x=TRUE,all.y=TRUE)
 
 #final<-subset(final,!is.na(final$prcp.xhigh)&!is.na(final$prcp.high))
 
-#tmax<-rbindlist(tmax.2.3,idcol="station_id",fill=TRUE)
+tmax<-rbindlist(tmax.2.3,idcol="station_id",fill=TRUE)
 #tmax<-read.csv("/disks/home/abigail/thesis-repository/code/data/tmax.csv")
 #limits.tmax<-read.csv("/disks/home/abigail/thesis-repository/code/data/limits.tmax.csv")
 
@@ -175,7 +175,7 @@ prcp.metric.1$row_id<-as.integer(prcp.metric.1$row_id)
 
 #tmin.metric.1$row_id<-as.integer(tmin.metric.1$row_id)
 
-soil$row_id<-as.integer(soil$row_id)
+#soil$row_id<-as.integer(soil$row_id)
 
 metrics<-merge(tmax.metric.1,tmin.metric.1,all=TRUE)
 metrics<-merge(metrics,prcp.metric.1,all=TRUE)
