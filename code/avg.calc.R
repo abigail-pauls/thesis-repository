@@ -1,10 +1,8 @@
-#install.packages("future.apply")
-#library(future.apply)
+#50 year climate calculations for normalization of calculated values; calculating mean and standard deviation of climate variables
+
 library(lubridate)
 library(tidyverse)
 library(data.table)
-#library(jsonlite)
-#library(sf)
 
 norm<-function(y){
 	r<-rle(y)
@@ -13,88 +11,86 @@ norm<-function(y){
 	mean = if (length(lengths)) mean(lengths,na.rm=TRUE) else NA_real_,
 	sd = if (length(lengths)) sd(lengths,na.rm=TRUE) else NA_real_)}
 
-#lp.all<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
+lp.all<-read.csv("/disks/home/abigail/thesis-repository/code/data/soil.final.csv")
 
-#soil.stations<-as.vector(unique(lp.all$station_id))
+soil.stations<-as.vector(unique(lp.all$station_id))
 
-#soil.stations<-soil.stations[! soil.stations %in% c("NA")]
+soil.stations<-soil.stations[! soil.stations %in% c("NA")]
 
-#station.file<-file.path(paste0(soil.stations,".csv"))
+station.file<-file.path(paste0(soil.stations,".csv"))
 
-#files<-file.path("/disks/home/abigail/thesis-repository/code/data/ghcn-daily",station.file)
+files<-file.path("/disks/home/abigail/thesis-repository/code/data/ghcn-daily",station.file)
 
-#files.1<-files[file.exists(files)]
+files.1<-files[file.exists(files)]
 
-#plan(multisession)
+data_list<-setNames(lapply(files.1,fread),tools::file_path_sans_ext(basename(files.1)))
 
-#data_list<-setNames(lapply(files.1,fread),tools::file_path_sans_ext(basename(files.1)))
+clim<-data.frame(
+	station_id = character(),
+	min.date = character(),
+	max.date = character())
 
-#clim<-data.frame(
-#	station_id = character(),
-#	min.date = character(),
-#	max.date = character())
+for(i in names(data_list)){
+	clim<-rbind(clim,data.frame(
+	station_id = i,
+	min.date = min(data_list[[i]]$DATE),
+	max.date = max(data_list[[i]]$DATE)))}
 
-#for(i in names(data_list)){
-#	clim<-rbind(clim,data.frame(
-#	station_id = i,
-#	min.date = min(data_list[[i]]$DATE),
-#	max.date = max(data_list[[i]]$DATE)))}
+clim.station<-read.csv("/disks/home/abigail/thesis-repository/code/data/clim.dates.csv")
 
-#clim.station<-read.csv("/disks/home/abigail/thesis-repository/code/data/clim.dates.csv")
+clim.1<-with(clim,subset(clim,min.date<="1964-01-01"&max.date>="2014-12-31"))
+clim.1.1<-as.vector(clim.1$station_id)
+clim.1.2<- data_list[names(data_list) %in% clim.1.1]
 
-#clim.1<-with(clim,subset(clim,min.date<="1973-01-01"&max.date>="2023-01-01"))
-#clim.1.1<-as.vector(clim.1$station_id)
-#clim.1.2<- data_list[names(data_list) %in% clim.1.1]
+clim.2<-map(clim.1.2,~.x %>%
+	mutate(DATE = as.Date(DATE),
+	YEAR = lubridate::year(DATE),
+	MONTH = lubridate::month(DATE),
+	DAY = lubridate::day(DATE)))
 
-#clim.2<-map(clim.1.2,~.x %>%
-#	mutate(DATE = as.Date(DATE),
-#	YEAR = lubridate::year(DATE),
-#	MONTH = lubridate::month(DATE),
-#	DAY = lubridate::day(DATE)))
+clim.3<-map(clim.2, ~.x %>% 
+	filter(YEAR >= 1964, YEAR <= 2014))
 
-#clim.3<-map(clim.2, ~.x %>% 
-#	filter(YEAR >= 1973, YEAR <= 2023))
+clim.4 <- lapply(clim.3, function(dt)
+	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1964-01-01"), as.Date("2014-12-31"), by = "day")))
 
-#clim.4 <- lapply(clim.3, function(dt)
-#	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
+clim.5<-rbindlist(lapply(names(clim.4),function(h){
+	dt<-clim.4[[h]]
+	data.table(
+		station_id = basename(h),
+		n_rows = nrow(dt),
+		min.date=min(dt$DATE, na.rm = TRUE),
+		max.date=max(dt$DATE, na.rm = TRUE),
+		data.miss.precip = (sum(is.na(dt$PRCP)))/(nrow(dt)),
+		data.miss.tmax = (sum(is.na(dt$TMAX)))/(nrow(dt)),
+		data.miss.tmin = (sum(is.na(dt$TMIN)))/(nrow(dt)),
+		data.miss.tavg = (sum(is.na(dt$TAVG)))/(nrow(dt)))}),fill=TRUE)
 
-#clim.5<-rbindlist(lapply(names(clim.4),function(h){
-#	dt<-clim.4[[h]]
-#	data.table(
-#		station_id = basename(h),
-#		n_rows = nrow(dt),
-#		min.date=min(dt$DATE, na.rm = TRUE),
-#		max.date=max(dt$DATE, na.rm = TRUE),
-#		data.miss.precip = (sum(is.na(dt$PRCP)))/(nrow(dt)),
-#		data.miss.tmax = (sum(is.na(dt$TMAX)))/(nrow(dt)),
-#		data.miss.tmin = (sum(is.na(dt$TMIN)))/(nrow(dt)),
-#		data.miss.tavg = (sum(is.na(dt$TAVG)))/(nrow(dt)))}),fill=TRUE)
-
-#write.csv(clim.5,"/disks/home/abigail/thesis-repository/code/data/clim.5.csv")
+write.csv(clim.5,"/disks/home/abigail/thesis-repository/code/data/clim.5.csv")
 
 #clim.5<-read.csv("/disks/home/abigail/thesis-repository/code/data/clim.5.csv")
 
-#prcp<-with(clim.5,subset(clim.5,data.miss.precip<=0.1,select = c("station_id","n_rows","data.miss.precip")))
+prcp<-with(clim.5,subset(clim.5,data.miss.precip<=0.1,select = c("station_id","n_rows","data.miss.precip")))
 
-#prcp.1.1<-as.vector(prcp$station_id)
-#prcp.1.2<- clim.4[names(clim.4) %in% prcp.1.1]
+prcp.1.1<-as.vector(prcp$station_id)
+prcp.1.2<- clim.4[names(clim.4) %in% prcp.1.1]
 
-#prcp.2<-prcp.1.2[sapply(prcp.1.2, function(a) "PRCP" %in% names(a))]
+prcp.2<-prcp.1.2[sapply(prcp.1.2, function(a) "PRCP" %in% names(a))]
 
-#prcp.2.1<-lapply(prcp.2, function(b){
-#	b$PRCP<-as.numeric(b$PRCP)/10
-#	b})
+prcp.2.1<-lapply(prcp.2, function(b){
+	b$PRCP<-as.numeric(b$PRCP)/10
+	b})
 
-#map <-lapply(prcp.2.1, function(b){
-#	aggregate(PRCP ~ YEAR*STATION, b, sum, na.rm = TRUE)})
+map <-lapply(prcp.2.1, function(b){
+	aggregate(PRCP ~ YEAR*STATION, b, sum, na.rm = TRUE)})
 
-#map.1<-data.table(station_id=character(),map=numeric())
+map.1<-data.table(station_id=character(),map=numeric())
 
-#for(i in names(map)){
-#	df<-map[[i]]
-#	map.1<-rbind(map.1,data.table(
-#	station_id=i,
-#	map=mean(df$PRCP,na.rm=TRUE)))}
+for(i in names(map)){
+	df<-map[[i]]
+	map.1<-rbind(map.1,data.table(
+	station_id=i,
+	map=mean(df$PRCP,na.rm=TRUE)))}
 
 prcp<-rbindlist(prcp.2.1,idcol="station_id",fill=TRUE)
 
@@ -196,7 +192,7 @@ tmax.1.1<-as.vector(tmax.1$station_id)
 tmax.1.2<- clim.4[names(clim.4) %in% tmax.1.1]
 
 tmax.2<-map(tmax.1.2, ~.x %>% 
-	filter(YEAR >= 1973, YEAR <= 2023))
+	filter(YEAR >= 1964, YEAR <= 2014))
 
 tmax.2.1 <- lapply(tmax.2, function(dt)
 	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
@@ -289,7 +285,7 @@ tmin.1.1<-as.vector(tmin.1$station_id)
 tmin.1.2<- clim.4[names(clim.4) %in% tmin.1.1]
 
 tmin.2<-map(tmin.1.2, ~.x %>%
-	filter(YEAR >= 1973, YEAR <= 2023))
+	filter(YEAR >= 1965, YEAR < 2015))
 
 tmin.2.1 <- lapply(tmin.2, function(dt)
 	tidyr::complete(dplyr::mutate(dt, DATE = as.Date(DATE)),DATE = seq(as.Date("1973-01-01"), as.Date("2023-12-31"), by = "day")))
